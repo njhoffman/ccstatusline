@@ -17,6 +17,8 @@ describe('getContextWindowMetrics', () => {
             totalInputTokens: null,
             totalOutputTokens: null,
             cachedTokens: null,
+            cacheReadTokens: null,
+            cacheCreationTokens: null,
             totalTokens: null
         });
     });
@@ -45,6 +47,8 @@ describe('getContextWindowMetrics', () => {
             totalInputTokens: 4567,
             totalOutputTokens: 890,
             cachedTokens: 700,
+            cacheReadTokens: 400,
+            cacheCreationTokens: 300,
             totalTokens: 1900
         });
     });
@@ -69,6 +73,8 @@ describe('getContextWindowMetrics', () => {
             totalInputTokens: 5000,
             totalOutputTokens: 1000,
             cachedTokens: null,
+            cacheReadTokens: null,
+            cacheCreationTokens: null,
             totalTokens: 6000
         });
     });

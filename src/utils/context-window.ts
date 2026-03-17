@@ -9,6 +9,8 @@ export interface ContextWindowMetrics {
     totalInputTokens: number | null;
     totalOutputTokens: number | null;
     cachedTokens: number | null;
+    cacheReadTokens: number | null;
+    cacheCreationTokens: number | null;
     totalTokens: number | null;
 }
 
@@ -37,6 +39,8 @@ export function getContextWindowMetrics(data?: StatusJSON): ContextWindowMetrics
             totalInputTokens: null,
             totalOutputTokens: null,
             cachedTokens: null,
+            cacheReadTokens: null,
+            cacheCreationTokens: null,
             totalTokens: null
         };
     }
@@ -49,6 +53,8 @@ export function getContextWindowMetrics(data?: StatusJSON): ContextWindowMetrics
     let currentUsageTotalTokens: number | null = null;
     let contextLengthTokens: number | null = null;
     let cachedTokens: number | null = null;
+    let cacheReadTokens: number | null = null;
+    let cacheCreationTokens: number | null = null;
 
     if (typeof contextWindow.current_usage === 'number') {
         currentUsageTotalTokens = toFiniteNonNegativeNumber(contextWindow.current_usage);
@@ -57,12 +63,14 @@ export function getContextWindowMetrics(data?: StatusJSON): ContextWindowMetrics
         const usage = contextWindow.current_usage;
         const inputTokens = toFiniteNonNegativeNumber(usage.input_tokens) ?? 0;
         const outputTokens = toFiniteNonNegativeNumber(usage.output_tokens) ?? 0;
-        const cacheCreationTokens = toFiniteNonNegativeNumber(usage.cache_creation_input_tokens) ?? 0;
-        const cacheReadTokens = toFiniteNonNegativeNumber(usage.cache_read_input_tokens) ?? 0;
+        const creationTokens = toFiniteNonNegativeNumber(usage.cache_creation_input_tokens) ?? 0;
+        const readTokens = toFiniteNonNegativeNumber(usage.cache_read_input_tokens) ?? 0;
 
-        currentUsageTotalTokens = inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens;
-        contextLengthTokens = inputTokens + cacheCreationTokens + cacheReadTokens;
-        cachedTokens = cacheCreationTokens + cacheReadTokens;
+        currentUsageTotalTokens = inputTokens + outputTokens + creationTokens + readTokens;
+        contextLengthTokens = inputTokens + creationTokens + readTokens;
+        cachedTokens = creationTokens + readTokens;
+        cacheReadTokens = readTokens;
+        cacheCreationTokens = creationTokens;
     }
 
     const rawUsedPercentage = toFiniteNonNegativeNumber(contextWindow.used_percentage);
@@ -99,6 +107,8 @@ export function getContextWindowMetrics(data?: StatusJSON): ContextWindowMetrics
         totalInputTokens,
         totalOutputTokens,
         cachedTokens,
+        cacheReadTokens,
+        cacheCreationTokens,
         totalTokens
     };
 }
@@ -113,6 +123,14 @@ export function getContextWindowOutputTotalTokens(data?: StatusJSON): number | n
 
 export function getContextWindowCachedTokens(data?: StatusJSON): number | null {
     return getContextWindowMetrics(data).cachedTokens;
+}
+
+export function getContextWindowCacheReadTokens(data?: StatusJSON): number | null {
+    return getContextWindowMetrics(data).cacheReadTokens;
+}
+
+export function getContextWindowCacheCreationTokens(data?: StatusJSON): number | null {
+    return getContextWindowMetrics(data).cacheCreationTokens;
 }
 
 export function getContextWindowTotalTokens(data?: StatusJSON): number | null {

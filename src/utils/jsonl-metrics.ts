@@ -152,7 +152,7 @@ export async function getTokenMetrics(transcriptPath: string): Promise<TokenMetr
     try {
         // Use Node.js-compatible file reading
         if (!fs.existsSync(transcriptPath)) {
-            return { inputTokens: 0, outputTokens: 0, cachedTokens: 0, totalTokens: 0, contextLength: 0 };
+            return { inputTokens: 0, outputTokens: 0, cachedTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, totalTokens: 0, contextLength: 0 };
         }
 
         const lines = await readJsonlLines(transcriptPath);
@@ -160,6 +160,8 @@ export async function getTokenMetrics(transcriptPath: string): Promise<TokenMetr
         let inputTokens = 0;
         let outputTokens = 0;
         let cachedTokens = 0;
+        let cacheReadTokens = 0;
+        let cacheCreationTokens = 0;
         let contextLength = 0;
 
         // Parse each line and sum up token usage for totals
@@ -171,8 +173,11 @@ export async function getTokenMetrics(transcriptPath: string): Promise<TokenMetr
             if (data?.message?.usage) {
                 inputTokens += data.message.usage.input_tokens || 0;
                 outputTokens += data.message.usage.output_tokens || 0;
-                cachedTokens += data.message.usage.cache_read_input_tokens ?? 0;
-                cachedTokens += data.message.usage.cache_creation_input_tokens ?? 0;
+                const readTokens = data.message.usage.cache_read_input_tokens ?? 0;
+                const creationTokens = data.message.usage.cache_creation_input_tokens ?? 0;
+                cacheReadTokens += readTokens;
+                cacheCreationTokens += creationTokens;
+                cachedTokens += readTokens + creationTokens;
 
                 // Track the most recent entry with isSidechain: false (or undefined, which defaults to main chain)
                 // Also skip API error messages (synthetic messages with 0 tokens)
@@ -196,9 +201,9 @@ export async function getTokenMetrics(transcriptPath: string): Promise<TokenMetr
 
         const totalTokens = inputTokens + outputTokens + cachedTokens;
 
-        return { inputTokens, outputTokens, cachedTokens, totalTokens, contextLength };
+        return { inputTokens, outputTokens, cachedTokens, cacheReadTokens, cacheCreationTokens, totalTokens, contextLength };
     } catch {
-        return { inputTokens: 0, outputTokens: 0, cachedTokens: 0, totalTokens: 0, contextLength: 0 };
+        return { inputTokens: 0, outputTokens: 0, cachedTokens: 0, cacheReadTokens: 0, cacheCreationTokens: 0, totalTokens: 0, contextLength: 0 };
     }
 }
 

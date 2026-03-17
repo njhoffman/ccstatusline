@@ -29,6 +29,8 @@ export const WIDGET_MANIFEST: WidgetManifestEntry[] = [
     { type: 'tokens-input', create: () => new widgets.TokensInputWidget() },
     { type: 'tokens-output', create: () => new widgets.TokensOutputWidget() },
     { type: 'tokens-cached', create: () => new widgets.TokensCachedWidget() },
+    { type: 'tokens-cache-read', create: () => new widgets.TokensCacheReadWidget() },
+    { type: 'tokens-cache-creation', create: () => new widgets.TokensCacheCreationWidget() },
     { type: 'tokens-total', create: () => new widgets.TokensTotalWidget() },
     { type: 'input-speed', create: () => new widgets.InputSpeedWidget() },
     { type: 'output-speed', create: () => new widgets.OutputSpeedWidget() },
@@ -54,7 +56,8 @@ export const WIDGET_MANIFEST: WidgetManifestEntry[] = [
     { type: 'context-bar', create: () => new widgets.ContextBarWidget() },
     { type: 'skills', create: () => new widgets.SkillsWidget() },
     { type: 'thinking-effort', create: () => new widgets.ThinkingEffortWidget() },
-    { type: 'vim-mode', create: () => new widgets.VimModeWidget() }
+    { type: 'vim-mode', create: () => new widgets.VimModeWidget() },
+    { type: 'transcript-path', create: () => new widgets.TranscriptPathWidget() }
 ];
 
 export const LAYOUT_WIDGET_MANIFEST: LayoutWidgetManifestEntry[] = [

@@ -48,6 +48,8 @@ describe('ContextBarWidget', () => {
                 inputTokens: 0,
                 outputTokens: 0,
                 cachedTokens: 0,
+                cacheReadTokens: 0,
+                cacheCreationTokens: 0,
                 totalTokens: 0,
                 contextLength: 50000
             }
@@ -64,6 +66,8 @@ describe('ContextBarWidget', () => {
                 inputTokens: 0,
                 outputTokens: 0,
                 cachedTokens: 0,
+                cacheReadTokens: 0,
+                cacheCreationTokens: 0,
                 totalTokens: 0,
                 contextLength: 50000
             }
@@ -80,6 +84,8 @@ describe('ContextBarWidget', () => {
                 inputTokens: 0,
                 outputTokens: 0,
                 cachedTokens: 0,
+                cacheReadTokens: 0,
+                cacheCreationTokens: 0,
                 totalTokens: 0,
                 contextLength: 50000
             }

@@ -84,4 +84,27 @@ describe('migrations', () => {
         expect(updateMessage.message).toContain('v2.0.2');
         expect(updateMessage.remaining).toBe(12);
     });
+
+    it('migrates v3 to v4 by adding widgetStyle classic', () => {
+        const migrated = migrateConfig({
+            version: 3,
+            lines: [[{ type: 'model' }]],
+            powerline: { enabled: true }
+        }, 4) as Record<string, unknown>;
+
+        expect(migrated.version).toBe(4);
+        expect(migrated.widgetStyle).toBe('classic');
+        const updateMessage = migrated.updatemessage as { message?: string; remaining?: number };
+        expect(updateMessage.message).toContain('widget style themes');
+        expect(updateMessage.remaining).toBe(12);
+    });
+
+    it('applies all migrations from v1 to v4', () => {
+        const migrated = migrateConfig({
+            lines: [[{ type: 'model' }]]
+        }, 4) as Record<string, unknown>;
+
+        expect(migrated.version).toBe(4);
+        expect(migrated.widgetStyle).toBe('classic');
+    });
 });

@@ -101,11 +101,12 @@ All widgets must implement:
 **Available Widgets:**
 - Model, Version, OutputStyle - Claude Code metadata display
 - GitBranch, GitChanges, GitInsertions, GitDeletions, GitWorktree - Git repository status
-- TokensInput, TokensOutput, TokensCached, TokensTotal - Token usage metrics
+- TokensInput, TokensOutput, TokensCached, TokensCacheRead, TokensCacheCreation, TokensTotal - Token usage metrics
 - ContextLength, ContextPercentage, ContextPercentageUsable - Context window metrics (uses dynamic model-based context windows: 1M for Sonnet 4.5 with [1m] suffix, 200k for all other models)
 - BlockTimer, SessionClock, SessionCost - Time and cost tracking
 - CurrentWorkingDir, TerminalWidth - Environment info
 - CustomText, CustomCommand - User-defined widgets
+- TranscriptPath - Transcript file path display
 
 ## Key Implementation Details
 
@@ -117,6 +118,7 @@ All widgets must implement:
 - **Powerline mode**: Optional Powerline-style rendering with arrow separators
 - **Custom commands**: Execute shell commands and display output in status line
 - **Mergeable items**: Items can be merged together with or without padding
+- **Widget styles**: Preset visual themes (classic, bubble, slashed, minimal, rainbow, pure) that control separators, padding, and rendering mode
 
 ## Bun Usage Preferences
 

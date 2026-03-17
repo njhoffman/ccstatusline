@@ -443,7 +443,9 @@ bun run example
 - **Current Working Dir** - Shows current working directory with segment limit, fish-style abbreviation, and optional `~` home abbreviation
 - **Tokens Input** - Shows input token count for the current session
 - **Tokens Output** - Shows output token count for the current session
-- **Tokens Cached** - Shows cached token count for the current session
+- **Tokens Cached** - Shows combined cached token count (read + creation) for the current session
+- **Tokens Cache Read** - Shows cache read token count for the current session
+- **Tokens Cache Creation** - Shows cache creation (write) token count for the current session
 - **Tokens Total** - Shows total token count (`input + output + cache`) for the current session
 - **Input Speed** - Shows session-average input token speed (`tokens/sec`) with optional per-widget window (`0-120` seconds; `0` = full-session average)
 - **Output Speed** - Shows session-average output token speed (`tokens/sec`) with optional per-widget window (`0-120` seconds; `0` = full-session average)
@@ -469,6 +471,7 @@ bun run example
 - **Context Bar** - Shows context usage as a progress bar with short/full display modes
 - **Skills** - Shows skill activity as last used, total count, or unique list (with optional list limit and hide-when-empty toggle)
 - **Vim Mode** - Displays current vim editor mode
+- **Transcript Path** - Shows the path to the current transcript file
 - **Separator** - Visual divider between widgets (available when Powerline mode is off and no default separator is configured)
 - **Flex Separator** - Expands to fill available space (available when Powerline mode is off)
 
@@ -513,6 +516,23 @@ Configure global formatting preferences that apply to all widgets:
 > 💡 **Note:** These settings are applied during rendering and don't add widgets to your widget list. They provide a consistent look across your entire status line without modifying individual widget configurations.
 
 > ⚠️ **VSCode Users:** If colors appear incorrect in the VSCode integrated terminal, the "Terminal › Integrated: Minimum Contrast Ratio" (`terminal.integrated.minimumContrastRatio`) setting is forcing a minimum contrast between foreground and background colors. You can adjust this setting to 1 to disable the contrast enforcement, or use a standalone terminal for accurate colors.
+
+### 🎭 Widget Styles
+
+Widget styles provide preset visual themes that control separators, padding, and rendering mode. Select a style from the TUI's **Widget Style** menu or set `widgetStyle` in your settings JSON.
+
+| Style | Description |
+|-------|-------------|
+| **Classic** | Default style with configurable separators (existing behavior) |
+| **Bubble** | Rounded bubble segments with colored backgrounds (requires Powerline fonts) |
+| **Slashed** | Forward slash `/` separators between widgets |
+| **Minimal** | No separators or padding, compact display |
+| **Rainbow** | Powerline arrows with cycling background colors (requires Powerline fonts) |
+| **Pure** | Bold foreground text only, no backgrounds or separators |
+
+> When a non-classic widget style is active, it controls the separator, padding, and powerline configuration. Individual widget colors and bold settings still apply on top of the style. Powerline color themes can still be changed for bubble and rainbow styles.
+
+---
 
 ### ⏱️ Block Timer Widget
 

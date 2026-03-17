@@ -22,6 +22,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 100000
                 }
@@ -60,6 +62,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }
@@ -78,6 +82,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }
@@ -94,6 +100,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 2000000
                 }
@@ -110,6 +118,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }
@@ -126,6 +136,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }
@@ -147,6 +159,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }
@@ -165,6 +179,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }
@@ -187,6 +203,8 @@ describe('calculateContextPercentage', () => {
                     inputTokens: 0,
                     outputTokens: 0,
                     cachedTokens: 0,
+                    cacheReadTokens: 0,
+                    cacheCreationTokens: 0,
                     totalTokens: 0,
                     contextLength: 42000
                 }

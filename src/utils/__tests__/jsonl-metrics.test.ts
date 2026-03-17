@@ -154,6 +154,8 @@ describe('jsonl transcript metrics', () => {
             inputTokens: 1799,
             outputTokens: 141,
             cachedTokens: 92,
+            cacheReadTokens: 56,
+            cacheCreationTokens: 36,
             totalTokens: 2032,
             contextLength: 250
         });
@@ -165,6 +167,8 @@ describe('jsonl transcript metrics', () => {
             inputTokens: 0,
             outputTokens: 0,
             cachedTokens: 0,
+            cacheReadTokens: 0,
+            cacheCreationTokens: 0,
             totalTokens: 0,
             contextLength: 0
         });

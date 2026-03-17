@@ -8,8 +8,10 @@ import React, { useState } from 'react';
 
 import type { PowerlineConfig } from '../../types/PowerlineConfig';
 import type { Settings } from '../../types/Settings';
+import type { WidgetStyleName } from '../../types/WidgetStyle';
 import { type PowerlineFontStatus } from '../../utils/powerline';
 import { buildEnabledPowerlineSettings } from '../../utils/powerline-settings';
+import { getWidgetStyleDefinition } from '../../utils/widget-styles';
 
 import { ConfirmDialog } from './ConfirmDialog';
 import {
@@ -416,6 +418,14 @@ export const PowerlineSetup: React.FC<PowerlineSetupProps> = ({
                     {!powerlineConfig.enabled && (
                         <Box marginTop={1}>
                             <Text dimColor>Enable Powerline mode to configure separators, caps, and themes.</Text>
+                        </Box>
+                    )}
+
+                    {settings.widgetStyle && settings.widgetStyle !== 'classic' && (
+                        <Box marginTop={1}>
+                            <Text color='yellow'>
+                                {`Widget Style "${getWidgetStyleDefinition(settings.widgetStyle as WidgetStyleName).name}" is active - separator and cap settings are managed by the style. Color themes still apply.`}
+                            </Text>
                         </Box>
                     )}
 

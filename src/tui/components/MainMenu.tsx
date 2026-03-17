@@ -12,6 +12,7 @@ import { List } from './List';
 export type MainMenuOption = 'lines'
     | 'colors'
     | 'powerline'
+    | 'widgetStyle'
     | 'terminalConfig'
     | 'globalOverrides'
     | 'install'
@@ -61,6 +62,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             value: 'powerline',
             description:
                 'Install Powerline fonts for enhanced visual separators and symbols in your status line'
+        },
+        {
+            label: '🎭 Widget Style',
+            value: 'widgetStyle',
+            description:
+                'Choose a visual theme for your status line: classic, bubble, slashed, minimal, rainbow, or pure'
         },
         '-' as const,
         {

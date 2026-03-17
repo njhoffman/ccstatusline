@@ -53,6 +53,7 @@ import {
     StatusLinePreview,
     TerminalOptionsMenu,
     TerminalWidthMenu,
+    WidgetStyleSelector,
     type MainMenuOption
 } from './components';
 
@@ -73,6 +74,7 @@ type AppScreen = 'main'
     | 'globalOverrides'
     | 'confirm'
     | 'powerline'
+    | 'widgetStyle'
     | 'install';
 
 interface ConfirmDialogState {
@@ -263,6 +265,9 @@ export const App: React.FC = () => {
                 break;
             case 'powerline':
                 setScreen('powerline');
+                break;
+            case 'widgetStyle':
+                setScreen('widgetStyle');
                 break;
             case 'install':
                 handleInstallUninstall();
@@ -493,6 +498,17 @@ export const App: React.FC = () => {
                         onSelectBunx={handleBunxInstall}
                         onCancel={handleInstallMenuCancel}
                         initialSelection={menuSelections.install}
+                    />
+                )}
+                {screen === 'widgetStyle' && (
+                    <WidgetStyleSelector
+                        settings={settings}
+                        onUpdate={(updatedSettings) => {
+                            setSettings(updatedSettings);
+                        }}
+                        onBack={() => {
+                            setScreen('main');
+                        }}
                     />
                 )}
                 {screen === 'powerline' && (
