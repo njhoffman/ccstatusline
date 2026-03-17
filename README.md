@@ -176,7 +176,19 @@
 
 ## 🚀 Quick Start
 
-### No installation needed! Use directly with npx or bunx:
+### Option 1: Claude Code Plugin (recommended)
+
+Install as a Claude Code plugin for guided setup:
+
+```bash
+claude plugin add sirmalloc/ccstatusline
+```
+
+Then run the `/ccstatusline` command inside Claude Code to launch the interactive setup wizard.
+
+### Option 2: Direct with npx or bunx
+
+No installation needed - run the configuration TUI directly:
 
 ```bash
 # Run the configuration TUI with npm
