@@ -6,17 +6,12 @@ import {
 
 import type { RenderContext } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types/Settings';
-
 import { TranscriptPathWidget } from '../TranscriptPath';
 
 describe('TranscriptPath widget', () => {
     it('renders transcript path from context data', () => {
         const widget = new TranscriptPathWidget();
-        const context: RenderContext = {
-            data: {
-                transcript_path: '/home/user/.claude/transcripts/session.jsonl'
-            }
-        };
+        const context: RenderContext = { data: { transcript_path: '/home/user/.claude/transcripts/session.jsonl' } };
 
         expect(widget.render({ id: 'tp', type: 'transcript-path' }, context, DEFAULT_SETTINGS))
             .toBe('/home/user/.claude/transcripts/session.jsonl');
@@ -24,9 +19,7 @@ describe('TranscriptPath widget', () => {
 
     it('returns null when transcript_path is missing', () => {
         const widget = new TranscriptPathWidget();
-        const context: RenderContext = {
-            data: {}
-        };
+        const context: RenderContext = { data: {} };
 
         expect(widget.render({ id: 'tp', type: 'transcript-path' }, context, DEFAULT_SETTINGS))
             .toBeNull();

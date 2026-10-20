@@ -10,6 +10,12 @@ import { shouldInsertInput } from '../../utils/input-guards';
 
 export type EditorMode = 'separator' | 'startCap' | 'endCap';
 
+const LEFT_FACING_CHARS = new Set([
+    '\uE0B2', '\uE0B3', '\uE0B6', '\uE0B7',
+    '\uE0BE', '\uE0BA', '\uE0C2', '\uE0C3', '\uE0CA', '\uE0C6',
+    '\u{1FB8C}'
+]);
+
 export interface PowerlineSeparatorEditorProps {
     settings: Settings;
     mode: EditorMode;
@@ -54,21 +60,83 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                 { char: '\uE0B0', name: 'Triangle Right', hex: 'E0B0' },
                 { char: '\uE0B2', name: 'Triangle Left', hex: 'E0B2' },
                 { char: '\uE0B4', name: 'Round Right', hex: 'E0B4' },
-                { char: '\uE0B6', name: 'Round Left', hex: 'E0B6' }
+                { char: '\uE0B6', name: 'Round Left', hex: 'E0B6' },
+                { char: '\uE0B1', name: 'Inverse Triangle Right', hex: 'E0B1' },
+                { char: '\uE0B3', name: 'Inverse Triangle Left', hex: 'E0B3' },
+                { char: '\uE0B5', name: 'Thin Round Right', hex: 'E0B5' },
+                { char: '\uE0B7', name: 'Thin Round Left', hex: 'E0B7' },
+                { char: '\u2591', name: 'Block Light', hex: '2591' },
+                { char: '\u2592', name: 'Block Medium', hex: '2592' },
+                { char: '\u2593', name: 'Block Heavy', hex: '2593' },
+                { char: '\u2429', name: 'Block Checkered', hex: '2429' },
+                { char: '\u{1FB8C}', name: 'Block Light Left', hex: '1FB8C' },
+                { char: '\u{1FB8D}', name: 'Block Light Right', hex: '1FB8D' },
+                { char: '\u{1FB8E}', name: 'Block Light Top', hex: '1FB8E' },
+                { char: '\u{1FB8F}', name: 'Block Light Bottom', hex: '1FB8F' },
+                { char: '\uE0C6', name: 'Block Pixel Left', hex: 'E0C6' },
+                { char: '\uE0C4', name: 'Block Pixel Right', hex: 'E0C4' },
+                { char: '\u{1FB9E}', name: 'Triangle Light Lower', hex: '1FB9E' },
+                { char: '\u{1FB9F}', name: 'Diagonal Light Lower', hex: '1FB9F' },
+                { char: '\u{1FB9C}', name: 'Triangle Light Upper', hex: '1FB9C' },
+                { char: '\u{1FB9D}', name: 'Diagonal Light Upper', hex: '1FB9D' },
+                { char: '\u2503', name: 'Vertical Bar', hex: '2503' },
+                { char: '\u2502', name: 'Vertical Bar Thin', hex: '2502' },
+                { char: '\uE0BC', name: 'Forward Slant Right', hex: 'E0BC' },
+                { char: '\uE0BE', name: 'Forward Slant Left', hex: 'E0BE' },
+                { char: '\uE0B8', name: 'Backward Slant Right', hex: 'E0B8' },
+                { char: '\uE0BA', name: 'Backward Slant Left', hex: 'E0BA' },
+                { char: '\uE0C2', name: 'Flame Left', hex: 'E0C2' },
+                { char: '\uE0C0', name: 'Flame Right', hex: 'E0C0' },
+                { char: '\uE0C3', name: 'Thin Flame Left', hex: 'E0C3' },
+                { char: '\uE0C1', name: 'Thin Flame Right', hex: 'E0C1' },
+                { char: '\uE0CA', name: 'Waveform Left', hex: 'E0CA' },
+                { char: '\uE0C8', name: 'Waveform Right', hex: 'E0C8' }
             ];
         } else if (mode === 'startCap') {
             return [
                 { char: '\uE0B2', name: 'Triangle', hex: 'E0B2' },
                 { char: '\uE0B6', name: 'Round', hex: 'E0B6' },
                 { char: '\uE0BA', name: 'Lower Triangle', hex: 'E0BA' },
-                { char: '\uE0BE', name: 'Diagonal', hex: 'E0BE' }
+                { char: '\uE0BE', name: 'Diagonal', hex: 'E0BE' },
+                { char: '\uE0B3', name: 'Inverse Triangle Left', hex: 'E0B3' },
+                { char: '\uE0B7', name: 'Thin Round Left', hex: 'E0B7' },
+                { char: '\u2591', name: 'Block Light', hex: '2591' },
+                { char: '\u2592', name: 'Block Medium', hex: '2592' },
+                { char: '\u2593', name: 'Block Heavy', hex: '2593' },
+                { char: '\u2429', name: 'Block Checkered', hex: '2429' },
+                { char: '\u{1FB8C}', name: 'Block Light Left', hex: '1FB8C' },
+                { char: '\uE0C6', name: 'Block Pixel Left', hex: 'E0C6' },
+                { char: '\u{1FB9E}', name: 'Triangle Light Lower', hex: '1FB9E' },
+                { char: '\u{1FB9D}', name: 'Diagonal Light Upper', hex: '1FB9D' },
+                { char: '\u2503', name: 'Vertical Bar', hex: '2503' },
+                { char: '\u2502', name: 'Vertical Bar Thin', hex: '2502' },
+                { char: '\uE0C2', name: 'Flame Left', hex: 'E0C2' },
+                { char: '\uE0C3', name: 'Thin Flame Left', hex: 'E0C3' },
+                { char: '\uE0CA', name: 'Waveform Left', hex: 'E0CA' }
             ];
         } else {
             return [
                 { char: '\uE0B0', name: 'Triangle', hex: 'E0B0' },
                 { char: '\uE0B4', name: 'Round', hex: 'E0B4' },
                 { char: '\uE0B8', name: 'Lower Triangle', hex: 'E0B8' },
-                { char: '\uE0BC', name: 'Diagonal', hex: 'E0BC' }
+                { char: '\uE0BC', name: 'Diagonal', hex: 'E0BC' },
+                { char: '\uE0B1', name: 'Inverse Triangle Right', hex: 'E0B1' },
+                { char: '\uE0B5', name: 'Thin Round Right', hex: 'E0B5' },
+                { char: '\u2591', name: 'Block Light', hex: '2591' },
+                { char: '\u2592', name: 'Block Medium', hex: '2592' },
+                { char: '\u2593', name: 'Block Heavy', hex: '2593' },
+                { char: '\u2429', name: 'Block Checkered', hex: '2429' },
+                { char: '\u{1FB8D}', name: 'Block Light Right', hex: '1FB8D' },
+                { char: '\u{1FB8E}', name: 'Block Light Top', hex: '1FB8E' },
+                { char: '\u{1FB8F}', name: 'Block Light Bottom', hex: '1FB8F' },
+                { char: '\uE0C4', name: 'Block Pixel Right', hex: 'E0C4' },
+                { char: '\u{1FB9F}', name: 'Diagonal Light Lower', hex: '1FB9F' },
+                { char: '\u{1FB9C}', name: 'Triangle Light Upper', hex: '1FB9C' },
+                { char: '\u2503', name: 'Vertical Bar', hex: '2503' },
+                { char: '\u2502', name: 'Vertical Bar Thin', hex: '2502' },
+                { char: '\uE0C0', name: 'Flame Right', hex: 'E0C0' },
+                { char: '\uE0C1', name: 'Thin Flame Right', hex: 'E0C1' },
+                { char: '\uE0C8', name: 'Waveform Right', hex: 'E0C8' }
             ];
         }
     };
@@ -177,9 +245,9 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                 const newChar = presetSeparators[newIndex]?.char ?? presetSeparators[0]?.char ?? '\uE0B0';
                 newSeparators[selectedIndex] = newChar;
 
-                // Auto-set inversion for left-facing separators (Triangle Left \uE0B2 or Round Left \uE0B6)
+                // Auto-set inversion for left-facing separators
                 if (mode === 'separator') {
-                    const isLeftFacing = newChar === '\uE0B2' || newChar === '\uE0B6';
+                    const isLeftFacing = LEFT_FACING_CHARS.has(newChar);
                     newInvertBgs[selectedIndex] = isLeftFacing;
                 }
 
@@ -189,7 +257,7 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                 const newSeparators = [...separators];
                 const newInvertBgs = mode === 'separator' ? [...invertBgs] : [];
                 const defaultChar = presetSeparators[0]?.char ?? '\uE0B0';
-                const isLeftFacing = defaultChar === '\uE0B2' || defaultChar === '\uE0B6';
+                const isLeftFacing = LEFT_FACING_CHARS.has(defaultChar);
                 if (separators.length === 0) {
                     // If empty, just add at the beginning
                     newSeparators.push(defaultChar);
@@ -212,7 +280,7 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                 const newSeparators = [...separators];
                 const newInvertBgs = mode === 'separator' ? [...invertBgs] : [];
                 const defaultChar = presetSeparators[0]?.char ?? '\uE0B0';
-                const isLeftFacing = defaultChar === '\uE0B2' || defaultChar === '\uE0B6';
+                const isLeftFacing = LEFT_FACING_CHARS.has(defaultChar);
                 if (separators.length === 0) {
                     // If empty, just add at the beginning
                     newSeparators.push(defaultChar);

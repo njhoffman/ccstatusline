@@ -50,7 +50,7 @@ export const WidgetStyleSelector: React.FC<WidgetStyleSelectorProps> = ({
     onBack
 }) => {
     const styles = useMemo(() => getWidgetStyleNames(), []);
-    const currentStyle = (settings.widgetStyle ?? 'classic') as WidgetStyleName;
+    const currentStyle = settings.widgetStyle;
     const [selectedIndex, setSelectedIndex] = useState(Math.max(0, styles.indexOf(currentStyle)));
     const originalStyleRef = useRef(currentStyle);
     const originalSettingsRef = useRef(settings);
@@ -103,7 +103,7 @@ export const WidgetStyleSelector: React.FC<WidgetStyleSelectorProps> = ({
             </Text>
             <Box>
                 <Text dimColor>
-                    {'Up/Down navigate, Enter apply, ESC cancel'}
+                    Up/Down navigate, Enter apply, ESC cancel
                 </Text>
             </Box>
 
@@ -121,7 +121,7 @@ export const WidgetStyleSelector: React.FC<WidgetStyleSelectorProps> = ({
 
             <Box marginTop={1}>
                 <Text dimColor>
-                    {'Styles control separators, padding, and rendering mode. Widget-level colors are preserved.'}
+                    Styles control separators, padding, and rendering mode. Widget-level colors are preserved.
                 </Text>
             </Box>
         </Box>

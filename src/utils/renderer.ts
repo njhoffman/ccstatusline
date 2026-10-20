@@ -20,8 +20,8 @@ import {
 } from './colors';
 import { calculateContextPercentage } from './context-percentage';
 import { getTerminalWidth } from './terminal';
-import { getWidget } from './widgets';
 import { applyWidgetStyle } from './widget-styles';
+import { getWidget } from './widgets';
 
 // Helper function to format token counts
 export function formatTokens(count: number): string {

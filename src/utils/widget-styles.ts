@@ -1,6 +1,9 @@
 import type { PowerlineConfig } from '../types/PowerlineConfig';
 import type { Settings } from '../types/Settings';
-import type { WidgetStyleName } from '../types/WidgetStyle';
+import {
+    WidgetStyleSchema,
+    type WidgetStyleName
+} from '../types/WidgetStyle';
 
 export interface WidgetStyleDefinition {
     name: string;
@@ -88,7 +91,7 @@ export const WIDGET_STYLE_DEFINITIONS: Record<WidgetStyleName, WidgetStyleDefini
 };
 
 export function getWidgetStyleNames(): WidgetStyleName[] {
-    return Object.keys(WIDGET_STYLE_DEFINITIONS) as WidgetStyleName[];
+    return [...WidgetStyleSchema.options];
 }
 
 export function getWidgetStyleDefinition(name: WidgetStyleName): WidgetStyleDefinition {
@@ -100,15 +103,12 @@ export function getWidgetStyleDescription(name: WidgetStyleName): string {
 }
 
 export function applyWidgetStyle(settings: Settings): Settings {
-    const styleName = (settings.widgetStyle ?? 'classic') as WidgetStyleName;
+    const styleName = settings.widgetStyle;
     if (styleName === 'classic') {
         return settings;
     }
 
     const style = WIDGET_STYLE_DEFINITIONS[styleName];
-    if (!style) {
-        return settings;
-    }
 
     const overrides = style.overrides;
     const effectiveSettings: Settings = {

@@ -100,9 +100,7 @@ describe('migrations', () => {
     });
 
     it('applies all migrations from v1 to v4', () => {
-        const migrated = migrateConfig({
-            lines: [[{ type: 'model' }]]
-        }, 4) as Record<string, unknown>;
+        const migrated = migrateConfig({ lines: [[{ type: 'model' }]] }, 4) as Record<string, unknown>;
 
         expect(migrated.version).toBe(4);
         expect(migrated.widgetStyle).toBe('classic');

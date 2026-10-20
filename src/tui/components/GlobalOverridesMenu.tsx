@@ -39,8 +39,9 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
     const bgColors = ['none', ...COLOR_MAP.filter(c => c.isBackground).map(c => c.name)];
     const fgColors = ['none', ...COLOR_MAP.filter(c => !c.isBackground).map(c => c.name)];
 
-    const currentBgIndex = bgColors.indexOf(settings.overrideBackgroundColor ?? 'none');
-    const currentFgIndex = fgColors.indexOf(settings.overrideForegroundColor ?? 'none');
+    // -1 means disabled (undefined), 0 means 'none' (explicitly no color), 1+ means a color
+    const currentBgIndex = settings.overrideBackgroundColor === undefined ? -1 : bgColors.indexOf(settings.overrideBackgroundColor);
+    const currentFgIndex = settings.overrideForegroundColor === undefined ? -1 : fgColors.indexOf(settings.overrideForegroundColor);
 
     useInput((input, key) => {
         if (editingPadding) {
@@ -109,14 +110,14 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                 };
                 onUpdate(updatedSettings);
             } else if ((input === 'b' || input === 'B') && !isPowerlineEnabled) {
-                // Cycle through background colors
-                const nextIndex = (currentBgIndex + 1) % bgColors.length;
-                const nextBgColor = bgColors[nextIndex];
-                const updatedSettings = {
-                    ...settings,
-                    overrideBackgroundColor: nextBgColor === 'none' ? undefined : nextBgColor
-                };
-                onUpdate(updatedSettings);
+                // Cycle: disabled (-1) → none (0) → colors (1+) → disabled (-1)
+                const nextIndex = currentBgIndex + 1;
+                if (nextIndex >= bgColors.length) {
+                    // Wrap back to disabled
+                    onUpdate({ ...settings, overrideBackgroundColor: undefined });
+                } else {
+                    onUpdate({ ...settings, overrideBackgroundColor: bgColors[nextIndex] });
+                }
             } else if ((input === 'c' || input === 'C') && !isPowerlineEnabled) {
                 // Clear override background color
                 const updatedSettings = {
@@ -134,14 +135,14 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                 };
                 onUpdate(updatedSettings);
             } else if (input === 'f' || input === 'F') {
-                // Cycle through foreground colors
-                const nextIndex = (currentFgIndex + 1) % fgColors.length;
-                const nextFgColor = fgColors[nextIndex];
-                const updatedSettings = {
-                    ...settings,
-                    overrideForegroundColor: nextFgColor === 'none' ? undefined : nextFgColor
-                };
-                onUpdate(updatedSettings);
+                // Cycle: disabled (-1) → none (0) → colors (1+) → disabled (-1)
+                const nextIndex = currentFgIndex + 1;
+                if (nextIndex >= fgColors.length) {
+                    // Wrap back to disabled
+                    onUpdate({ ...settings, overrideForegroundColor: undefined });
+                } else {
+                    onUpdate({ ...settings, overrideForegroundColor: fgColors[nextIndex] });
+                }
             } else if (input === 'g' || input === 'G') {
                 // Clear override foreground color
                 const updatedSettings = {
@@ -231,8 +232,10 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                     <Box>
                         <Text>Override FG Color: </Text>
                         {(() => {
-                            const fgColor = settings.overrideForegroundColor ?? 'none';
-                            if (fgColor === 'none') {
+                            const fgColor = settings.overrideForegroundColor;
+                            if (fgColor === undefined) {
+                                return <Text color='red'>Disabled</Text>;
+                            } else if (fgColor === 'none') {
                                 return <Text color='gray'>(none)</Text>;
                             } else {
                                 const displayName = getColorDisplayName(fgColor);
@@ -251,8 +254,10 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                         ) : (
                             <>
                                 {(() => {
-                                    const bgColor = settings.overrideBackgroundColor ?? 'none';
-                                    if (bgColor === 'none') {
+                                    const bgColor = settings.overrideBackgroundColor;
+                                    if (bgColor === undefined) {
+                                        return <Text color='red'>Disabled</Text>;
+                                    } else if (bgColor === 'none') {
                                         return <Text color='gray'>(none)</Text>;
                                     } else {
                                         const displayName = getColorDisplayName(bgColor);

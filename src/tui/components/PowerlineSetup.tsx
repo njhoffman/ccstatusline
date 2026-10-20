@@ -41,7 +41,37 @@ export function getSeparatorDisplay(powerlineConfig: PowerlineConfig): string {
         { char: '\uE0B0', name: 'Triangle Right' },
         { char: '\uE0B2', name: 'Triangle Left' },
         { char: '\uE0B4', name: 'Round Right' },
-        { char: '\uE0B6', name: 'Round Left' }
+        { char: '\uE0B6', name: 'Round Left' },
+        { char: '\uE0B1', name: 'Inverse Triangle Right' },
+        { char: '\uE0B3', name: 'Inverse Triangle Left' },
+        { char: '\uE0B5', name: 'Thin Round Right' },
+        { char: '\uE0B7', name: 'Thin Round Left' },
+        { char: '\u2591', name: 'Block Light' },
+        { char: '\u2592', name: 'Block Medium' },
+        { char: '\u2593', name: 'Block Heavy' },
+        { char: '\u2429', name: 'Block Checkered' },
+        { char: '\u{1FB8C}', name: 'Block Light Left' },
+        { char: '\u{1FB8D}', name: 'Block Light Right' },
+        { char: '\u{1FB8E}', name: 'Block Light Top' },
+        { char: '\u{1FB8F}', name: 'Block Light Bottom' },
+        { char: '\uE0C6', name: 'Block Pixel Left' },
+        { char: '\uE0C4', name: 'Block Pixel Right' },
+        { char: '\u{1FB9E}', name: 'Triangle Light Lower' },
+        { char: '\u{1FB9F}', name: 'Diagonal Light Lower' },
+        { char: '\u{1FB9C}', name: 'Triangle Light Upper' },
+        { char: '\u{1FB9D}', name: 'Diagonal Light Upper' },
+        { char: '\u2503', name: 'Vertical Bar' },
+        { char: '\u2502', name: 'Vertical Bar Thin' },
+        { char: '\uE0BC', name: 'Forward Slant Right' },
+        { char: '\uE0BE', name: 'Forward Slant Left' },
+        { char: '\uE0B8', name: 'Backward Slant Right' },
+        { char: '\uE0BA', name: 'Backward Slant Left' },
+        { char: '\uE0C2', name: 'Flame Left' },
+        { char: '\uE0C0', name: 'Flame Right' },
+        { char: '\uE0C3', name: 'Thin Flame Left' },
+        { char: '\uE0C1', name: 'Thin Flame Right' },
+        { char: '\uE0CA', name: 'Waveform Left' },
+        { char: '\uE0C8', name: 'Waveform Right' }
     ];
     const preset = presets.find(item => item.char === sep);
 
@@ -78,12 +108,44 @@ export function getCapDisplay(
         { char: '\uE0B2', name: 'Triangle' },
         { char: '\uE0B6', name: 'Round' },
         { char: '\uE0BA', name: 'Lower Triangle' },
-        { char: '\uE0BE', name: 'Diagonal' }
+        { char: '\uE0BE', name: 'Diagonal' },
+        { char: '\uE0B3', name: 'Inverse Triangle Left' },
+        { char: '\uE0B7', name: 'Thin Round Left' },
+        { char: '\u2591', name: 'Block Light' },
+        { char: '\u2592', name: 'Block Medium' },
+        { char: '\u2593', name: 'Block Heavy' },
+        { char: '\u2429', name: 'Block Checkered' },
+        { char: '\u{1FB8C}', name: 'Block Light Left' },
+        { char: '\uE0C6', name: 'Block Pixel Left' },
+        { char: '\u{1FB9E}', name: 'Triangle Light Lower' },
+        { char: '\u{1FB9D}', name: 'Diagonal Light Upper' },
+        { char: '\u2503', name: 'Vertical Bar' },
+        { char: '\u2502', name: 'Vertical Bar Thin' },
+        { char: '\uE0C2', name: 'Flame Left' },
+        { char: '\uE0C3', name: 'Thin Flame Left' },
+        { char: '\uE0CA', name: 'Waveform Left' }
     ] : [
         { char: '\uE0B0', name: 'Triangle' },
         { char: '\uE0B4', name: 'Round' },
         { char: '\uE0B8', name: 'Lower Triangle' },
-        { char: '\uE0BC', name: 'Diagonal' }
+        { char: '\uE0BC', name: 'Diagonal' },
+        { char: '\uE0B1', name: 'Inverse Triangle Right' },
+        { char: '\uE0B5', name: 'Thin Round Right' },
+        { char: '\u2591', name: 'Block Light' },
+        { char: '\u2592', name: 'Block Medium' },
+        { char: '\u2593', name: 'Block Heavy' },
+        { char: '\u2429', name: 'Block Checkered' },
+        { char: '\u{1FB8D}', name: 'Block Light Right' },
+        { char: '\u{1FB8E}', name: 'Block Light Top' },
+        { char: '\u{1FB8F}', name: 'Block Light Bottom' },
+        { char: '\uE0C4', name: 'Block Pixel Right' },
+        { char: '\u{1FB9F}', name: 'Diagonal Light Lower' },
+        { char: '\u{1FB9C}', name: 'Triangle Light Upper' },
+        { char: '\u2503', name: 'Vertical Bar' },
+        { char: '\u2502', name: 'Vertical Bar Thin' },
+        { char: '\uE0C0', name: 'Flame Right' },
+        { char: '\uE0C1', name: 'Thin Flame Right' },
+        { char: '\uE0C8', name: 'Waveform Right' }
     ];
     const preset = presets.find(item => item.char === cap);
 
@@ -421,7 +483,7 @@ export const PowerlineSetup: React.FC<PowerlineSetupProps> = ({
                         </Box>
                     )}
 
-                    {settings.widgetStyle && settings.widgetStyle !== 'classic' && (
+                    {settings.widgetStyle !== 'classic' && (
                         <Box marginTop={1}>
                             <Text color='yellow'>
                                 {`Widget Style "${getWidgetStyleDefinition(settings.widgetStyle as WidgetStyleName).name}" is active - separator and cap settings are managed by the style. Color themes still apply.`}

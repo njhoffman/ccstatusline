@@ -5,13 +5,12 @@ import {
 } from 'vitest';
 
 import { DEFAULT_SETTINGS } from '../../types/Settings';
-
 import {
+    WIDGET_STYLE_DEFINITIONS,
     applyWidgetStyle,
     getWidgetStyleDefinition,
     getWidgetStyleDescription,
-    getWidgetStyleNames,
-    WIDGET_STYLE_DEFINITIONS
+    getWidgetStyleNames
 } from '../widget-styles';
 
 describe('widget-styles', () => {
@@ -25,6 +24,10 @@ describe('widget-styles', () => {
             expect(names).toContain('rainbow');
             expect(names).toContain('pure');
             expect(names).toHaveLength(6);
+        });
+
+        it('returns styles in schema order', () => {
+            expect(getWidgetStyleNames()).toEqual(['minimal', 'pure', 'slashed', 'classic', 'bubble', 'rainbow']);
         });
     });
 

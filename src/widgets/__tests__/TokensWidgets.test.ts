@@ -49,7 +49,7 @@ describe('Token widgets', () => {
     });
 
     it('use context_window values for input/output and tokenMetrics totals for cached/total', async () => {
-        const { TokensCachedWidget, TokensInputWidget, TokensOutputWidget, TokensTotalWidget } = await loadWidgets();
+        const { TokensCachedWidget, TokensCacheReadWidget, TokensCacheCreationWidget, TokensInputWidget, TokensOutputWidget, TokensTotalWidget } = await loadWidgets();
         const context: RenderContext = {
             data: {
                 context_window: {
