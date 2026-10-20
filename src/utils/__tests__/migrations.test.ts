@@ -389,3 +389,105 @@ describe('v4 to v5 widget style migration', () => {
         expect(migrated.lines?.[0]?.[0]?.metadata).toEqual({ hide: '' });
     });
 });
+
+describe('v5 to v6 fork cache widget migration', () => {
+    function migrateItem(item: Record<string, unknown>): Record<string, unknown> | undefined {
+        const migrated = migrateConfig({
+            version: 5,
+            lines: [[item]]
+        }, 6) as { lines?: Record<string, unknown>[][] };
+
+        return migrated.lines?.[0]?.[0];
+    }
+
+    it.each([
+        ['tokens-cache-read', 'cache-read'],
+        ['tokens-cache-creation', 'cache-write']
+    ])('replaces %s with %s in session scope and the old default color', (type, replacement) => {
+        expect(migrateItem({ id: '1', type })).toEqual({
+            id: '1',
+            type: replacement,
+            color: 'cyan',
+            metadata: { cacheScopeSession: 'true' }
+        });
+    });
+
+    it('keeps explicit colors, display options and unrelated metadata', () => {
+        const item = migrateItem({
+            id: '1',
+            type: 'tokens-cache-read',
+            color: 'magenta',
+            backgroundColor: 'bgBlack',
+            rawValue: true,
+            bold: true,
+            metadata: { custom: 'x' }
+        });
+
+        expect(item).toEqual({
+            id: '1',
+            type: 'cache-read',
+            color: 'magenta',
+            backgroundColor: 'bgBlack',
+            rawValue: true,
+            bold: true,
+            metadata: { custom: 'x', cacheScopeSession: 'true' }
+        });
+    });
+
+    it('maps the zero hide state to empty without duplicating it', () => {
+        expect(migrateItem({ id: '1', type: 'tokens-cache-creation', metadata: { hide: 'zero' } })?.metadata)
+            .toEqual({ hide: 'empty', cacheScopeSession: 'true' });
+        expect(migrateItem({ id: '1', type: 'tokens-cache-creation', metadata: { hide: 'zero,empty' } })?.metadata)
+            .toEqual({ hide: 'empty', cacheScopeSession: 'true' });
+    });
+
+    it('keeps an explicit empty hide list', () => {
+        expect(migrateItem({ id: '1', type: 'tokens-cache-read', metadata: { hide: '' } })?.metadata)
+            .toEqual({ hide: '', cacheScopeSession: 'true' });
+    });
+
+    it.each(['tokens-cached', 'cache-read', '__proto__', 'toString'])('leaves %s untouched', (type) => {
+        const item = { id: '1', type, metadata: { hide: 'zero' } };
+
+        expect(migrateItem(item)).toEqual(item);
+    });
+
+    it('announces the replacement only when a widget was replaced', () => {
+        const replaced = migrateConfig({ version: 5, lines: [[{ id: '1', type: 'tokens-cache-read' }]] }, 6) as Record<string, unknown>;
+        const untouched = migrateConfig({ version: 5, lines: [[{ id: '1', type: 'model' }]] }, 6) as Record<string, unknown>;
+
+        expect(replaced.version).toBe(6);
+        expect((replaced.updatemessage as { message?: string }).message).toContain('Cache Read/Write');
+        expect(untouched.version).toBe(6);
+        expect(untouched.updatemessage).toBeUndefined();
+    });
+
+    it('migrates replaced widgets across multiple lines and leaves non-array lines alone', () => {
+        const migrated = migrateConfig({
+            version: 5,
+            lines: [
+                [{ id: '1', type: 'model' }, { id: '2', type: 'tokens-cache-read' }],
+                [{ id: '3', type: 'tokens-cache-creation' }],
+                'not-a-line'
+            ]
+        }, 6) as { lines: unknown[] };
+
+        expect(migrated.lines[0]).toEqual([
+            { id: '1', type: 'model' },
+            { id: '2', type: 'cache-read', color: 'cyan', metadata: { cacheScopeSession: 'true' } }
+        ]);
+        expect(migrated.lines[1]).toEqual([
+            { id: '3', type: 'cache-write', color: 'cyan', metadata: { cacheScopeSession: 'true' } }
+        ]);
+        expect(migrated.lines[2]).toBe('not-a-line');
+    });
+
+    it('produces widgets the registry knows', () => {
+        for (const type of ['tokens-cache-read', 'tokens-cache-creation']) {
+            const replacementType = migrateItem({ id: '1', type })?.type as string;
+
+            expect(getWidget(replacementType)).not.toBeNull();
+            expect(getWidget(type)).toBeNull();
+        }
+    });
+});

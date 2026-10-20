@@ -29,8 +29,6 @@ export { GitIsForkWidget } from './GitIsFork';
 export { TokensInputWidget } from './TokensInput';
 export { TokensOutputWidget } from './TokensOutput';
 export { TokensCachedWidget } from './TokensCached';
-export { TokensCacheReadWidget } from './TokensCacheRead';
-export { TokensCacheCreationWidget } from './TokensCacheCreation';
 export { TokensTotalWidget } from './TokensTotal';
 export { CacheHitRateWidget } from './CacheHitRate';
 export { CacheReadWidget } from './CacheRead';

@@ -399,8 +399,84 @@ export const migrations: Migration[] = [
 
             return migrated;
         }
+    },
+    {
+        fromVersion: 5,
+        toVersion: 6,
+        description: 'Migrate from v5 to v6: replace fork cache widgets with Cache Read/Write',
+        migrate: (data) => {
+            const migrated: Record<string, unknown> = { ...data };
+            let replacedCount = 0;
+
+            if (Array.isArray(data.lines)) {
+                migrated.lines = data.lines.map((line: unknown) => (Array.isArray(line)
+                    ? line.map((item: unknown) => {
+                        const replaced = replaceForkCacheWidget(item);
+                        if (replaced !== item) {
+                            replacedCount++;
+                        }
+                        return replaced;
+                    })
+                    : line));
+            }
+
+            migrated.version = 6;
+
+            if (replacedCount > 0) {
+                migrated.updatemessage = {
+                    message: 'ccstatusline updated: Tokens Cache Read/Creation widgets replaced by Cache Read/Write (session scope)',
+                    remaining: 12
+                };
+            }
+
+            return migrated;
+        }
     }
 ];
+
+// The fork's Tokens Cache Read/Creation widgets duplicated upstream's Cache
+// Read/Write widgets. They always showed cumulative session totals in cyan,
+// while the replacements default to per-turn scope and their own colors.
+const FORK_CACHE_WIDGET_REPLACEMENTS: Record<string, string> = {
+    'tokens-cache-read': 'cache-read',
+    'tokens-cache-creation': 'cache-write'
+};
+
+const FORK_CACHE_WIDGET_COLOR = 'cyan';
+
+function replaceForkCacheWidget(item: unknown): unknown {
+    if (!isRecord(item) || typeof item.type !== 'string') {
+        return item;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(FORK_CACHE_WIDGET_REPLACEMENTS, item.type)) {
+        return item;
+    }
+    const replacementType = FORK_CACHE_WIDGET_REPLACEMENTS[item.type];
+    if (!replacementType) {
+        return item;
+    }
+
+    const metadata: Record<string, unknown> = isRecord(item.metadata) ? { ...item.metadata } : {};
+    metadata.cacheScopeSession = 'true';
+
+    // The replacements hide on 'empty' (no cache activity) where the fork's
+    // widgets hid on 'zero'
+    if (typeof metadata.hide === 'string') {
+        const states = metadata.hide
+            .split(',')
+            .filter(state => state.length > 0)
+            .map(state => (state === 'zero' ? 'empty' : state));
+        metadata.hide = [...new Set(states)].join(',');
+    }
+
+    return {
+        ...item,
+        type: replacementType,
+        color: typeof item.color === 'string' ? item.color : FORK_CACHE_WIDGET_COLOR,
+        metadata
+    };
+}
 
 /**
  * Detect the version of the config data

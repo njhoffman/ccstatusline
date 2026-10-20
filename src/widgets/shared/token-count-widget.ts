@@ -14,7 +14,7 @@ import { formatRawOrLabeledValue } from './raw-or-labeled';
 
 const ZERO_HIDEABLE_STATE: HideableState = { key: 'zero', label: 'when token count is zero' };
 
-// The Tokens Input, Output, Cached, Cache Read, Cache Creation and Total widgets show one labeled token
+// The Tokens Input, Output, Cached and Total widgets show one labeled token
 // count for the session. They differ in where the count comes from, and their
 // label, name, color and preview sample.
 export abstract class TokenCountWidget implements Widget {

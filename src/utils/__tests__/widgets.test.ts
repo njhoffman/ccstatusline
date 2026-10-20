@@ -260,12 +260,7 @@ describe('widget catalog filtering', () => {
     });
 
     it('prioritizes word-initial fuzzy matches over incidental subsequence matches', () => {
-        // Every Tokens Cache widget is a word-initial match for 'tc'; ties sort by display name
-        expect(filterWidgetCatalog(catalog, 'All', 'tc').slice(0, 3).map(entry => entry.type)).toEqual([
-            'tokens-cache-creation',
-            'tokens-cache-read',
-            'tokens-cached'
-        ]);
+        expect(filterWidgetCatalog(catalog, 'All', 'tc')[0]?.type).toBe('tokens-cached');
         expect(filterWidgetCatalog(catalog, 'All', 'ti')[0]?.type).toBe('tokens-input');
         expect(filterWidgetCatalog(catalog, 'All', 'to')[0]?.type).toBe('tokens-output');
     });

@@ -187,7 +187,8 @@ Tell the user:
 Available widget types for reference:
 - **Core:** model, version, output-style
 - **Git:** git-branch, git-changes, git-insertions, git-deletions, git-root-dir, git-worktree
-- **Tokens:** tokens-input, tokens-output, tokens-cached, tokens-cache-read, tokens-cache-creation, tokens-total
+- **Tokens:** tokens-input, tokens-output, tokens-cached, tokens-total
+- **Cache:** cache-read, cache-write, cache-hit-rate, cache-timer
 - **Speed:** input-speed, output-speed, total-speed
 - **Context:** context-length, context-percentage, context-percentage-usable, context-bar
 - **Session:** session-clock, session-cost, block-timer, reset-timer, weekly-reset-timer

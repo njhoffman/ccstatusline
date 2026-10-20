@@ -8,7 +8,7 @@ import { WidgetItemSchema } from './Widget';
 import { WidgetStyleSchema } from './WidgetStyle';
 
 // Current version - bump this when making breaking changes to the schema
-export const CURRENT_VERSION = 5;
+export const CURRENT_VERSION = 6;
 
 // Which side(s) of a widget the default padding is applied to
 export const DefaultPaddingSideSchema = z.enum(['both', 'left', 'right']);
