@@ -1,34 +1,16 @@
 import type { RenderContext } from '../types/RenderContext';
-import type { Settings } from '../types/Settings';
-import type {
-    Widget,
-    WidgetEditorDisplay,
-    WidgetItem
-} from '../types/Widget';
-import { formatTokens } from '../utils/renderer';
 
-import { formatRawOrLabeledValue } from './shared/raw-or-labeled';
+import { TokenCountWidget } from './shared/token-count-widget';
 
-export class TokensCacheCreationWidget implements Widget {
+export class TokensCacheCreationWidget extends TokenCountWidget {
+    protected readonly label = 'Cache Write: ';
+    protected readonly previewTokens = 3500;
+
     getDefaultColor(): string { return 'cyan'; }
     getDescription(): string { return 'Shows cache creation token count for the current session'; }
     getDisplayName(): string { return 'Tokens Cache Creation'; }
-    getCategory(): string { return 'Tokens'; }
-    getEditorDisplay(item: WidgetItem): WidgetEditorDisplay {
-        return { displayText: this.getDisplayName() };
+
+    protected getTokenCount(context: RenderContext): number | null {
+        return context.tokenMetrics?.cacheCreationTokens ?? null;
     }
-
-    render(item: WidgetItem, context: RenderContext, settings: Settings): string | null {
-        if (context.isPreview) {
-            return formatRawOrLabeledValue(item, 'Cache Write: ', '3.5k');
-        }
-
-        if (context.tokenMetrics) {
-            return formatRawOrLabeledValue(item, 'Cache Write: ', formatTokens(context.tokenMetrics.cacheCreationTokens));
-        }
-        return null;
-    }
-
-    supportsRawValue(): boolean { return true; }
-    supportsColors(item: WidgetItem): boolean { return true; }
 }

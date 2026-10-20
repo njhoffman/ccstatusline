@@ -1,34 +1,16 @@
 import type { RenderContext } from '../types/RenderContext';
-import type { Settings } from '../types/Settings';
-import type {
-    Widget,
-    WidgetEditorDisplay,
-    WidgetItem
-} from '../types/Widget';
-import { formatTokens } from '../utils/renderer';
 
-import { formatRawOrLabeledValue } from './shared/raw-or-labeled';
+import { TokenCountWidget } from './shared/token-count-widget';
 
-export class TokensCacheReadWidget implements Widget {
+export class TokensCacheReadWidget extends TokenCountWidget {
+    protected readonly label = 'Cache Read: ';
+    protected readonly previewTokens = 8500;
+
     getDefaultColor(): string { return 'cyan'; }
     getDescription(): string { return 'Shows cache read token count for the current session'; }
     getDisplayName(): string { return 'Tokens Cache Read'; }
-    getCategory(): string { return 'Tokens'; }
-    getEditorDisplay(item: WidgetItem): WidgetEditorDisplay {
-        return { displayText: this.getDisplayName() };
+
+    protected getTokenCount(context: RenderContext): number | null {
+        return context.tokenMetrics?.cacheReadTokens ?? null;
     }
-
-    render(item: WidgetItem, context: RenderContext, settings: Settings): string | null {
-        if (context.isPreview) {
-            return formatRawOrLabeledValue(item, 'Cache Read: ', '8.5k');
-        }
-
-        if (context.tokenMetrics) {
-            return formatRawOrLabeledValue(item, 'Cache Read: ', formatTokens(context.tokenMetrics.cacheReadTokens));
-        }
-        return null;
-    }
-
-    supportsRawValue(): boolean { return true; }
-    supportsColors(item: WidgetItem): boolean { return true; }
 }

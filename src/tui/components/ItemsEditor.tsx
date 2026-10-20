@@ -3,7 +3,10 @@ import {
     Text,
     useInput
 } from 'ink';
-import React, { useState } from 'react';
+import React, {
+    useEffect,
+    useState
+} from 'react';
 
 import type { Settings } from '../../types/Settings';
 import type {
@@ -14,15 +17,33 @@ import type {
 } from '../../types/Widget';
 import { getBackgroundColorsForPowerline } from '../../utils/colors';
 import { generateGuid } from '../../utils/guid';
+import {
+    getNumberFormatKeybind,
+    getNumberFormatModifierText
+} from '../../utils/number-format';
 import { canDetectTerminalWidth } from '../../utils/terminal';
 import {
     filterWidgetCatalog,
+    getMatchSegments,
     getWidget,
     getWidgetCatalog,
     getWidgetCatalogCategories
 } from '../../utils/widgets';
+import {
+    EDIT_HIDE_STATES_ACTION,
+    getHideKeybind,
+    getHideModifierText
+} from '../../widgets/shared/hideable';
+import {
+    EDIT_LABEL_ACTION,
+    clearLabel,
+    getLabelKeybind,
+    getLabelModifierText
+} from '../../widgets/shared/raw-or-labeled';
 
 import { ConfirmDialog } from './ConfirmDialog';
+import { HideStatesEditor } from './HideStatesEditor';
+import { LabelEditor } from './LabelEditor';
 import {
     handleMoveInputMode,
     handleNormalInputMode,
@@ -36,18 +57,32 @@ import {
 export interface ItemsEditorProps {
     widgets: WidgetItem[];
     onUpdate: (widgets: WidgetItem[]) => void;
+    onPreviewChange?: (widgets: WidgetItem[] | null) => void;
     onBack: () => void;
     lineNumber: number;
     settings: Settings;
 }
 
-export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onBack, lineNumber, settings }) => {
+function isMergedIntoPreviousWidget(widgets: WidgetItem[], index: number): boolean {
+    if (index <= 0) {
+        return false;
+    }
+
+    return Boolean(widgets[index - 1]?.merge);
+}
+
+export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onPreviewChange, onBack, lineNumber, settings }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [moveMode, setMoveMode] = useState(false);
     const [customEditorWidget, setCustomEditorWidget] = useState<CustomEditorWidgetState | null>(null);
     const [widgetPicker, setWidgetPicker] = useState<WidgetPickerState | null>(null);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const separatorChars = ['|', '-', ',', ' '];
+
+    // Discard a label draft if navigation unmounts the editor (for example, a save dialog).
+    useEffect(() => () => {
+        onPreviewChange?.(null);
+    }, [onPreviewChange]);
 
     const widgetCatalog = getWidgetCatalog(settings);
     const widgetCategories = ['All', ...getWidgetCatalogCategories(widgetCatalog)];
@@ -87,19 +122,41 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
         const newWidgets = [...widgets];
         newWidgets[selectedIndex] = updatedWidget;
         onUpdate(newWidgets);
+        onPreviewChange?.(null);
         setCustomEditorWidget(null);
     };
 
     const handleEditorCancel = () => {
+        onPreviewChange?.(null);
         setCustomEditorWidget(null);
     };
 
     const getCustomKeybindsForWidget = (widgetImpl: Widget, widget: WidgetItem): CustomKeybind[] => {
-        if (!widgetImpl.getCustomKeybinds) {
-            return [];
+        const keybinds = widgetImpl.getCustomKeybinds ? [...widgetImpl.getCustomKeybinds(widget)] : [];
+
+        // Numeric widgets get the precision cycle here rather than in the color
+        // menu, so every non-color override stays on this screen and stays
+        // reachable while a powerline theme is active.
+        if (widgetImpl.supportsNumberFormat?.()) {
+            keybinds.push(getNumberFormatKeybind());
         }
 
-        return widgetImpl.getCustomKeybinds(widget);
+        // Widgets declaring hideable states share a single (h)ide… keybind
+        // that opens the hide-state checklist instead of per-widget toggles.
+        // Such widgets must leave 'h' unbound: keybind matching takes the
+        // first hit, so a widget-level 'h' would shadow this one (enforced by
+        // a registry-wide test in utils/__tests__/widgets.test.ts)
+        if ((widgetImpl.getHideableStates?.().length ?? 0) > 0) {
+            keybinds.push(getHideKeybind());
+        }
+
+        // The label only shows when raw value is off, so the editor is offered
+        // only then. Like 'h', widgets must leave this key unbound.
+        if (widgetImpl.getLabelPrefix && !widget.rawValue) {
+            keybinds.push(getLabelKeybind());
+        }
+
+        return keybinds;
     };
 
     const openWidgetPicker = (action: WidgetPickerAction) => {
@@ -129,7 +186,10 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
             const currentWidget = widgets[selectedIndex];
             if (currentWidget) {
                 const newWidgets = [...widgets];
-                newWidgets[selectedIndex] = { ...currentWidget, type: selectedType };
+                // Other metadata carries over, but a label names the old widget's value
+                newWidgets[selectedIndex] = currentWidget.type === selectedType
+                    ? currentWidget
+                    : { ...clearLabel(currentWidget), type: selectedType };
                 onUpdate(newWidgets);
             }
         } else {
@@ -150,6 +210,32 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
 
         setWidgetPicker(null);
     };
+
+    const currentWidget = widgets[selectedIndex];
+    const isSeparator = currentWidget?.type === 'separator';
+    const isFlexSeparator = currentWidget?.type === 'flex-separator';
+
+    // Check if widget supports raw value using registry
+    let canToggleRaw = false;
+    let customKeybinds: CustomKeybind[] = [];
+    if (currentWidget && !isSeparator && !isFlexSeparator) {
+        const widgetImpl = getWidget(currentWidget.type);
+        if (widgetImpl) {
+            canToggleRaw = widgetImpl.supportsRawValue();
+            // Get custom keybinds from the widget
+            customKeybinds = getCustomKeybindsForWidget(widgetImpl, currentWidget);
+        } else {
+            canToggleRaw = false;
+        }
+    }
+
+    // On the last widget, m only clears a merge left there
+    const canMerge = currentWidget && (selectedIndex < widgets.length - 1 || Boolean(currentWidget.merge))
+        && !isSeparator && !isFlexSeparator;
+    const canExcludeAlign = Boolean(currentWidget) && !isSeparator && !isFlexSeparator
+        && settings.powerline.enabled && settings.powerline.autoAlign
+        && !isMergedIntoPreviousWidget(widgets, selectedIndex);
+    const hasWidgets = widgets.length > 0;
 
     useInput((input, key) => {
         // Skip input if custom editor is active
@@ -192,6 +278,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
             key,
             widgets,
             selectedIndex,
+            canExcludeAlign,
             separatorChars,
             onBack,
             onUpdate,
@@ -200,7 +287,8 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
             setShowClearConfirm,
             openWidgetPicker,
             getCustomKeybindsForWidget,
-            setCustomEditorWidget
+            setCustomEditorWidget,
+            getUniqueBackgroundColor
         });
     });
 
@@ -249,28 +337,6 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
         ? (pickerEntries.find(entry => entry.type === widgetPicker.selectedType) ?? pickerEntries[0])
         : null;
 
-    // Build dynamic help text based on selected item
-    const currentWidget = widgets[selectedIndex];
-    const isSeparator = currentWidget?.type === 'separator';
-    const isFlexSeparator = currentWidget?.type === 'flex-separator';
-
-    // Check if widget supports raw value using registry
-    let canToggleRaw = false;
-    let customKeybinds: CustomKeybind[] = [];
-    if (currentWidget && !isSeparator && !isFlexSeparator) {
-        const widgetImpl = getWidget(currentWidget.type);
-        if (widgetImpl) {
-            canToggleRaw = widgetImpl.supportsRawValue();
-            // Get custom keybinds from the widget
-            customKeybinds = getCustomKeybindsForWidget(widgetImpl, currentWidget);
-        } else {
-            canToggleRaw = false;
-        }
-    }
-
-    const canMerge = currentWidget && selectedIndex < widgets.length - 1 && !isSeparator && !isFlexSeparator;
-    const hasWidgets = widgets.length > 0;
-
     // Build main help text (without custom keybinds)
     let helpText = hasWidgets
         ? '↑↓ select, ←→ open type picker'
@@ -279,13 +345,16 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
         helpText += ', Space edit separator';
     }
     if (hasWidgets) {
-        helpText += ', Enter to move, (a)dd via picker, (i)nsert via picker, (d)elete, (c)lear line';
+        helpText += ', Enter to move, (a)dd via picker, (i)nsert via picker, (k) clone, (d)elete, (c)lear line';
     }
     if (canToggleRaw) {
         helpText += ', (r)aw value';
     }
     if (canMerge) {
         helpText += ', (m)erge';
+    }
+    if (canExcludeAlign) {
+        helpText += ', e(x)clude align';
     }
     helpText += ', ESC back';
 
@@ -296,6 +365,35 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
         : widgetPicker?.action === 'insert'
             ? 'Insert Widget'
             : 'Change Widget Type';
+
+    // The hide-state checklist is shared across all widgets that declare
+    // hideable states, so it renders here rather than via widget renderEditor
+    if (customEditorWidget?.action === EDIT_HIDE_STATES_ACTION) {
+        return (
+            <HideStatesEditor
+                widget={customEditorWidget.widget}
+                states={customEditorWidget.impl.getHideableStates?.() ?? []}
+                onComplete={handleEditorComplete}
+                onCancel={handleEditorCancel}
+            />
+        );
+    }
+
+    if (customEditorWidget?.action === EDIT_LABEL_ACTION && customEditorWidget.impl.getLabelPrefix) {
+        return (
+            <LabelEditor
+                widget={customEditorWidget.widget}
+                defaultLabel={customEditorWidget.impl.getLabelPrefix(customEditorWidget.widget)}
+                onComplete={handleEditorComplete}
+                onCancel={handleEditorCancel}
+                onPreview={(updatedWidget) => {
+                    const previewWidgets = [...widgets];
+                    previewWidgets[selectedIndex] = updatedWidget;
+                    onPreviewChange?.(previewWidgets);
+                }}
+            />
+        );
+    }
 
     // If custom editor is active, render it instead of the normal UI
     if (customEditorWidget?.impl.renderEditor) {
@@ -357,7 +455,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                             ⚠
                             {' '}
                             {settings.powerline.enabled
-                                ? 'Powerline mode active: separators controlled by powerline settings'
+                                ? 'Powerline mode active: manual separators disabled'
                                 : 'Default separator active: manual separators disabled'}
                         </Text>
                     </Box>
@@ -420,6 +518,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                                 <>
                                     {topLevelSearchEntries.map((entry, index) => {
                                         const isSelected = entry.type === selectedTopLevelSearchEntry?.type;
+                                        const segments = getMatchSegments(entry.displayName, widgetPicker.categoryQuery);
                                         return (
                                             <Box key={entry.type} flexDirection='row' flexWrap='nowrap'>
                                                 <Box width={3}>
@@ -427,9 +526,16 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                                                         {isSelected ? '▶ ' : '  '}
                                                     </Text>
                                                 </Box>
-                                                <Text color={isSelected ? 'green' : undefined}>
-                                                    {`${index + 1}. ${entry.displayName}`}
-                                                </Text>
+                                                <Text color={isSelected ? 'green' : undefined}>{`${index + 1}. `}</Text>
+                                                {segments.map((seg, i) => (
+                                                    <Text
+                                                        key={i}
+                                                        color={isSelected ? 'green' : seg.matched ? 'yellowBright' : undefined}
+                                                        bold={isSelected ? true : seg.matched}
+                                                    >
+                                                        {seg.text}
+                                                    </Text>
+                                                ))}
                                             </Box>
                                         );
                                     })}
@@ -475,6 +581,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                             <>
                                 {pickerEntries.map((entry, index) => {
                                     const isSelected = entry.type === selectedPickerEntry?.type;
+                                    const segments = getMatchSegments(entry.displayName, widgetPicker.widgetQuery);
                                     return (
                                         <Box key={entry.type} flexDirection='row' flexWrap='nowrap'>
                                             <Box width={3}>
@@ -482,9 +589,16 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                                                     {isSelected ? '▶ ' : '  '}
                                                 </Text>
                                             </Box>
-                                            <Text color={isSelected ? 'green' : undefined}>
-                                                {`${index + 1}. ${entry.displayName}`}
-                                            </Text>
+                                            <Text color={isSelected ? 'green' : undefined}>{`${index + 1}. `}</Text>
+                                            {segments.map((seg, i) => (
+                                                <Text
+                                                    key={i}
+                                                    color={isSelected ? 'green' : (seg.matched ? 'yellowBright' : undefined)}
+                                                    bold={seg.matched}
+                                                >
+                                                    {seg.text}
+                                                </Text>
+                                            ))}
                                         </Box>
                                     );
                                 })}
@@ -509,6 +623,11 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                                 const widgetImpl = widget.type !== 'separator' && widget.type !== 'flex-separator' ? getWidget(widget.type) : null;
                                 const { displayText, modifierText } = widgetImpl?.getEditorDisplay(widget) ?? { displayText: getWidgetDisplay(widget) };
                                 const supportsRawValue = widgetImpl?.supportsRawValue() ?? false;
+                                const numberFormatModifierText = widgetImpl?.supportsNumberFormat?.()
+                                    ? getNumberFormatModifierText(widget)
+                                    : undefined;
+                                const hideModifierText = widgetImpl ? getHideModifierText(widget, widgetImpl.getHideableStates?.() ?? []) : undefined;
+                                const labelModifierText = widgetImpl?.getLabelPrefix && !widget.rawValue ? getLabelModifierText(widget) : undefined;
 
                                 return (
                                     <Box key={widget.id} flexDirection='row' flexWrap='nowrap'>
@@ -526,9 +645,28 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onB
                                                 {modifierText}
                                             </Text>
                                         )}
+                                        {numberFormatModifierText && (
+                                            <Text dimColor>
+                                                {' '}
+                                                {numberFormatModifierText}
+                                            </Text>
+                                        )}
+                                        {hideModifierText && (
+                                            <Text dimColor>
+                                                {' '}
+                                                {hideModifierText}
+                                            </Text>
+                                        )}
+                                        {labelModifierText && (
+                                            <Text dimColor>
+                                                {' '}
+                                                {labelModifierText}
+                                            </Text>
+                                        )}
                                         {supportsRawValue && widget.rawValue && <Text dimColor> (raw value)</Text>}
                                         {widget.merge === true && <Text dimColor> (merged→)</Text>}
                                         {widget.merge === 'no-padding' && <Text dimColor> (merged-no-pad→)</Text>}
+                                        {widget.excludeFromAutoAlign && settings.powerline.enabled && settings.powerline.autoAlign && !isMergedIntoPreviousWidget(widgets, index) && <Text dimColor> (no-align)</Text>}
                                     </Box>
                                 );
                             })}
