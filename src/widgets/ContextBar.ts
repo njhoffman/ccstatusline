@@ -23,18 +23,61 @@ import { makeSliderBar } from './shared/usage-display';
 
 const LABEL = 'Context: ';
 
-type DisplayMode = 'progress' | 'progress-short' | 'slider' | 'slider-only';
+type DisplayMode = 'progress' | 'progress-short' | 'slider';
+type LabelMode = 'full' | 'percent' | 'tokens' | 'none';
+
+const LABEL_MODE_TEXT: Record<Exclude<LabelMode, 'full'>, string> = {
+    percent: 'percent label',
+    tokens: 'tokens label',
+    none: 'no label'
+};
 
 function getDisplayMode(item: WidgetItem): DisplayMode {
     const mode = item.metadata?.display;
-    if (mode === 'progress' || mode === 'slider' || mode === 'slider-only') {
+    if (mode === 'progress' || mode === 'slider') {
         return mode;
+    }
+    // Legacy 'slider-only' is a slider with no label (see getLabelMode)
+    if (mode === 'slider-only') {
+        return 'slider';
     }
     return 'progress-short';
 }
 
-function isBarSliderMode(mode: DisplayMode): boolean {
-    return mode === 'slider' || mode === 'slider-only';
+function getLabelMode(item: WidgetItem): LabelMode {
+    const labels = item.metadata?.labels;
+    if (labels === 'percent' || labels === 'tokens' || labels === 'none') {
+        return labels;
+    }
+    if (item.metadata?.display === 'slider-only') {
+        return 'none';
+    }
+    return 'full';
+}
+
+function formatBarLabel(bar: string, mode: LabelMode, usedDisplay: string, totalDisplay: string, percentDisplay: string): string {
+    switch (mode) {
+        case 'percent':
+            return `${bar} ${percentDisplay}`;
+        case 'tokens':
+            return `${bar} ${usedDisplay}/${totalDisplay}`;
+        case 'none':
+            return bar;
+        default:
+            return `${bar} ${usedDisplay}/${totalDisplay} (${percentDisplay})`;
+    }
+}
+
+// Normalize legacy 'slider-only' into display + labels before changing either
+function normalizeMetadata(item: WidgetItem): Record<string, string> {
+    const metadata = { ...(item.metadata ?? {}) };
+    if (metadata.display === 'slider-only') {
+        metadata.display = 'slider';
+        if (!('labels' in metadata)) {
+            metadata.labels = 'none';
+        }
+    }
+    return metadata;
 }
 
 export class ContextBarWidget implements Widget {
@@ -52,8 +95,11 @@ export class ContextBarWidget implements Widget {
             modifiers.push('medium bar');
         } else if (mode === 'slider') {
             modifiers.push('short bar');
-        } else if (mode === 'slider-only') {
-            modifiers.push('short bar only');
+        }
+
+        const labelMode = getLabelMode(item);
+        if (labelMode !== 'full') {
+            modifiers.push(LABEL_MODE_TEXT[labelMode]);
         }
 
         return {
@@ -63,30 +109,52 @@ export class ContextBarWidget implements Widget {
     }
 
     handleEditorAction(action: string, item: WidgetItem): WidgetItem | null {
-        if (action !== 'toggle-progress') {
-            return null;
-        }
-
-        const currentMode = getDisplayMode(item);
-        const nextMode: DisplayMode = currentMode === 'progress-short'
-            ? 'progress'
-            : currentMode === 'progress'
-                ? 'slider'
-                : currentMode === 'slider'
-                    ? 'slider-only'
+        if (action === 'toggle-progress') {
+            const currentMode = getDisplayMode(item);
+            const nextMode: DisplayMode = currentMode === 'progress-short'
+                ? 'progress'
+                : currentMode === 'progress'
+                    ? 'slider'
                     : 'progress-short';
 
-        return {
-            ...item,
-            metadata: {
-                ...(item.metadata ?? {}),
-                display: nextMode
+            return {
+                ...item,
+                metadata: {
+                    ...normalizeMetadata(item),
+                    display: nextMode
+                }
+            };
+        }
+
+        if (action === 'cycle-labels') {
+            const currentLabels = getLabelMode(item);
+            const nextLabels: LabelMode = currentLabels === 'full'
+                ? 'percent'
+                : currentLabels === 'percent'
+                    ? 'tokens'
+                    : currentLabels === 'tokens'
+                        ? 'none'
+                        : 'full';
+
+            const metadata = normalizeMetadata(item);
+            if (nextLabels === 'full') {
+                delete metadata.labels;
+            } else {
+                metadata.labels = nextLabels;
             }
-        };
+
+            return {
+                ...item,
+                metadata: Object.keys(metadata).length > 0 ? metadata : undefined
+            };
+        }
+
+        return null;
     }
 
     render(item: WidgetItem, context: RenderContext, settings: Settings): string | null {
         const displayMode = getDisplayMode(item);
+        const labelMode = getLabelMode(item);
         const tokenFormat = resolveNumberFormat('token', item, settings);
         const percentFormat = resolveNumberFormat('percent', item, settings);
 
@@ -94,13 +162,10 @@ export class ContextBarWidget implements Widget {
             const usedDisplay = formatTokens(50000, tokenFormat, 0);
             const totalDisplay = formatTokens(200000, tokenFormat, 0);
             const percentDisplay = formatPercent(25, percentFormat, 0);
-            if (isBarSliderMode(displayMode)) {
-                const slider = makeSliderBar(25);
-                const sliderDisplay = displayMode === 'slider' ? `${slider} ${usedDisplay}/${totalDisplay} (${percentDisplay})` : slider;
-                return formatRawOrLabeledValue(item, this.getLabelPrefix(), sliderDisplay);
-            }
-            const barWidth = displayMode === 'progress' ? 32 : 16;
-            const previewDisplay = `${makeUsageProgressBar(25, barWidth)} ${usedDisplay}/${totalDisplay} (${percentDisplay})`;
+            const previewBar = displayMode === 'slider'
+                ? makeSliderBar(25)
+                : makeUsageProgressBar(25, displayMode === 'progress' ? 32 : 16);
+            const previewDisplay = formatBarLabel(previewBar, labelMode, usedDisplay, totalDisplay, percentDisplay);
             return formatRawOrLabeledValue(item, this.getLabelPrefix(), previewDisplay);
         }
 
@@ -128,21 +193,18 @@ export class ContextBarWidget implements Widget {
         const totalDisplay = formatTokens(total, tokenFormat, 0);
         const percentDisplay = formatPercent(clampedPercent, percentFormat, 0);
 
-        if (isBarSliderMode(displayMode)) {
-            const slider = makeSliderBar(clampedPercent);
-            const sliderDisplay = displayMode === 'slider' ? `${slider} ${usedDisplay}/${totalDisplay} (${percentDisplay})` : slider;
-            return formatRawOrLabeledValue(item, this.getLabelPrefix(), sliderDisplay);
-        }
-
-        const barWidth = displayMode === 'progress' ? 32 : 16;
-        const display = `${makeUsageProgressBar(clampedPercent, barWidth)} ${usedDisplay}/${totalDisplay} (${percentDisplay})`;
+        const bar = displayMode === 'slider'
+            ? makeSliderBar(clampedPercent)
+            : makeUsageProgressBar(clampedPercent, displayMode === 'progress' ? 32 : 16);
+        const display = formatBarLabel(bar, labelMode, usedDisplay, totalDisplay, percentDisplay);
 
         return formatRawOrLabeledValue(item, this.getLabelPrefix(), display);
     }
 
     getCustomKeybinds(): CustomKeybind[] {
         return [
-            { key: 'p', label: '(p)rogress toggle', action: 'toggle-progress' }
+            { key: 'p', label: '(p)rogress toggle', action: 'toggle-progress' },
+            { key: 'l', label: '(l)abels', action: 'cycle-labels' }
         ];
     }
 

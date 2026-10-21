@@ -14,6 +14,7 @@ export interface WidgetStyleDefinition {
         defaultPadding?: string;
         globalBold?: boolean;
         inheritSeparatorColors?: boolean;
+        overrideBackgroundColor?: string;
         powerline?: Partial<PowerlineConfig>;
     };
 }
@@ -85,7 +86,8 @@ export const WIDGET_STYLE_DEFINITIONS: Record<WidgetStyleName, WidgetStyleDefini
         overrides: {
             defaultSeparator: ' ',
             defaultPadding: ' ',
-            globalBold: true
+            globalBold: true,
+            overrideBackgroundColor: 'none'
         }
     }
 };
@@ -116,7 +118,8 @@ export function applyWidgetStyle(settings: Settings): Settings {
         defaultSeparator: overrides.defaultSeparator ?? settings.defaultSeparator,
         defaultPadding: overrides.defaultPadding ?? settings.defaultPadding,
         globalBold: overrides.globalBold ?? settings.globalBold,
-        inheritSeparatorColors: overrides.inheritSeparatorColors ?? settings.inheritSeparatorColors
+        inheritSeparatorColors: overrides.inheritSeparatorColors ?? settings.inheritSeparatorColors,
+        overrideBackgroundColor: overrides.overrideBackgroundColor ?? settings.overrideBackgroundColor
     };
 
     if (style.usesPowerline && overrides.powerline) {

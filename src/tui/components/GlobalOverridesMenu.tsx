@@ -89,7 +89,7 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
     const bgColors = ['none', ...COLOR_MAP.filter(c => c.isBackground).map(c => c.name)];
     const fgColors = ['none', ...COLOR_MAP.filter(c => !c.isBackground).map(c => c.name)];
 
-    // -1 means disabled (undefined), 0 means 'none' (explicitly no color), 1+ means a color
+    // -1 means disabled (undefined), 0 means 'none' (forces no color on every widget), 1+ means a color
     const currentBgIndex = settings.overrideBackgroundColor === undefined ? -1 : bgColors.indexOf(settings.overrideBackgroundColor);
     const currentFgIndex = settings.overrideForegroundColor === undefined ? -1 : fgColors.indexOf(settings.overrideForegroundColor);
 
@@ -481,7 +481,7 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                             if (fgColor === undefined) {
                                 return <Text color='red'>Disabled</Text>;
                             } else if (fgColor === 'none') {
-                                return <Text color='gray'>(none)</Text>;
+                                return <Text color='gray'>None (terminal default)</Text>;
                             } else if (fgColor.startsWith('gradient:')) {
                                 const body = fgColor.substring(9);
                                 const displayName = GRADIENT_PRESET_NAMES.includes(body.toLowerCase())
@@ -510,7 +510,7 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                                     if (bgColor === undefined) {
                                         return <Text color='red'>Disabled</Text>;
                                     } else if (bgColor === 'none') {
-                                        return <Text color='gray'>(none)</Text>;
+                                        return <Text color='gray'>None (transparent)</Text>;
                                     } else {
                                         const displayName = getColorDisplayName(bgColor);
                                         const bgChalk = getChalkColor(bgColor, 'ansi16', true);

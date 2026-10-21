@@ -233,7 +233,7 @@ export const PowerlineSetup: React.FC<PowerlineSetupProps> = ({
     const hasManualSeparatorItems = settings.lines.some(line => line.some(
         item => item.type === 'separator'
     ));
-    const hasGlobalFgOverride = Boolean(settings.overrideForegroundColor && settings.overrideForegroundColor !== 'none');
+    const hasGlobalFgOverride = Boolean(settings.overrideForegroundColor);
     const globalOverrideMessage = hasGlobalFgOverride ? '⚠ Global override for FG active' : null;
 
     useInput((input, key) => {

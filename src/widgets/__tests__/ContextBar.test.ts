@@ -166,12 +166,104 @@ describe('ContextBarWidget', () => {
         const first = widget.handleEditorAction('toggle-progress', base);
         const second = widget.handleEditorAction('toggle-progress', first ?? base);
         const third = widget.handleEditorAction('toggle-progress', second ?? base);
-        const fourth = widget.handleEditorAction('toggle-progress', third ?? base);
 
         expect(first?.metadata?.display).toBe('progress');
         expect(second?.metadata?.display).toBe('slider');
-        expect(third?.metadata?.display).toBe('slider-only');
-        expect(fourth?.metadata?.display).toBe('progress-short');
+        expect(third?.metadata?.display).toBe('progress-short');
+    });
+
+    it('cycles label modes and clears metadata when returning to full', () => {
+        const widget = new ContextBarWidget();
+        const base: WidgetItem = { id: 'ctx', type: 'context-bar' };
+
+        const first = widget.handleEditorAction('cycle-labels', base);
+        const second = widget.handleEditorAction('cycle-labels', first ?? base);
+        const third = widget.handleEditorAction('cycle-labels', second ?? base);
+        const fourth = widget.handleEditorAction('cycle-labels', third ?? base);
+
+        expect(first?.metadata?.labels).toBe('percent');
+        expect(second?.metadata?.labels).toBe('tokens');
+        expect(third?.metadata?.labels).toBe('none');
+        expect(fourth?.metadata).toBeUndefined();
+    });
+
+    it('keeps the display mode when cycling labels', () => {
+        const widget = new ContextBarWidget();
+        const item: WidgetItem = { id: 'ctx', type: 'context-bar', metadata: { display: 'progress' } };
+
+        expect(widget.handleEditorAction('cycle-labels', item)?.metadata).toEqual({ display: 'progress', labels: 'percent' });
+    });
+
+    it('returns null for unknown editor actions', () => {
+        expect(new ContextBarWidget().handleEditorAction('unknown', { id: 'ctx', type: 'context-bar' })).toBeNull();
+    });
+
+    it.each([
+        ['percent', 'Context: [bar:15.0:16] 15%'],
+        ['tokens', 'Context: [bar:15.0:16] 30k/200k'],
+        ['none', 'Context: [bar:15.0:16]'],
+        ['bogus', 'Context: [bar:15.0:16] 30k/200k (15%)']
+    ])('renders the %s label mode', (labels, expected) => {
+        const context: RenderContext = {
+            data: {
+                context_window: {
+                    context_window_size: 200000,
+                    current_usage: {
+                        input_tokens: 20000,
+                        output_tokens: 10000,
+                        cache_creation_input_tokens: 5000,
+                        cache_read_input_tokens: 5000
+                    }
+                }
+            }
+        };
+
+        expect(new ContextBarWidget().render({
+            id: 'ctx',
+            type: 'context-bar',
+            metadata: { labels }
+        }, context, DEFAULT_SETTINGS)).toBe(expected);
+    });
+
+    it('renders only the bar in raw mode with no label', () => {
+        const context: RenderContext = { isPreview: true };
+
+        expect(new ContextBarWidget().render({
+            id: 'ctx',
+            type: 'context-bar',
+            rawValue: true,
+            metadata: { display: 'progress', labels: 'none' }
+        }, context, DEFAULT_SETTINGS)).toBe('[bar:25.0:32]');
+    });
+
+    describe('legacy slider-only display', () => {
+        const legacy: WidgetItem = { id: 'ctx', type: 'context-bar', metadata: { display: 'slider-only' } };
+
+        it('renders as a slider with no label', () => {
+            const rendered = new ContextBarWidget().render(legacy, { isPreview: true }, DEFAULT_SETTINGS);
+
+            expect(rendered).not.toBeNull();
+            expect(rendered).toMatch(/^Context: \S+$/);
+        });
+
+        it('describes itself as a short bar with no label', () => {
+            expect(new ContextBarWidget().getEditorDisplay(legacy).modifierText).toBe('(short bar, no label)');
+        });
+
+        it('migrates to slider + labels none when toggling progress', () => {
+            expect(new ContextBarWidget().handleEditorAction('toggle-progress', legacy)?.metadata).toEqual({ display: 'progress-short', labels: 'none' });
+        });
+
+        it('migrates to slider when cycling labels from none back to full', () => {
+            expect(new ContextBarWidget().handleEditorAction('cycle-labels', legacy)?.metadata).toEqual({ display: 'slider' });
+        });
+    });
+
+    it('exposes the progress and labels keybinds', () => {
+        expect(new ContextBarWidget().getCustomKeybinds()).toEqual([
+            { key: 'p', label: '(p)rogress toggle', action: 'toggle-progress' },
+            { key: 'l', label: '(l)abels', action: 'cycle-labels' }
+        ]);
     });
 
     it('formats context preview samples with the selected styles', () => {

@@ -102,6 +102,16 @@ describe('widget-styles', () => {
             expect(result.powerline.enabled).toBe(false);
         });
 
+        it('forces a transparent background for pure style', () => {
+            const settings = { ...DEFAULT_SETTINGS, widgetStyle: 'pure' as const, overrideBackgroundColor: 'bgBlack' };
+            expect(applyWidgetStyle(settings).overrideBackgroundColor).toBe('none');
+        });
+
+        it('keeps the user background override for other styles', () => {
+            const settings = { ...DEFAULT_SETTINGS, widgetStyle: 'slashed' as const, overrideBackgroundColor: 'bgBlack' };
+            expect(applyWidgetStyle(settings).overrideBackgroundColor).toBe('bgBlack');
+        });
+
         it('preserves user powerline theme selection for powerline styles', () => {
             const settings = {
                 ...DEFAULT_SETTINGS,

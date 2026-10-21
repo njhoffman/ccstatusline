@@ -67,8 +67,20 @@ function maybeApplyForegroundGradient(
     return stops ? applyLineGradient(line, stops, colorLevel) : line;
 }
 
+// Any foreground override owns the foreground, including 'none', which forces
+// the terminal default foreground.
 function hasForegroundOverride(settings: Settings): boolean {
-    return Boolean(settings.overrideForegroundColor && settings.overrideForegroundColor !== 'none');
+    return Boolean(settings.overrideForegroundColor);
+}
+
+// A background override replaces every widget background; 'none' forces a
+// transparent background. Returns the background to render with.
+function resolveOverrideBackground(settings: Settings, backgroundColor: string | undefined): string | undefined {
+    const bgOverride = settings.overrideBackgroundColor;
+    if (!bgOverride) {
+        return backgroundColor;
+    }
+    return bgOverride === 'none' ? undefined : bgOverride;
 }
 
 // A global foreground override owns the foreground even for widgets that
@@ -316,7 +328,7 @@ function renderPowerlineStatusLine(
             const paddedText = `${leadingPadding}${widgetText}${trailingPadding}`;
 
             // Determine colors
-            let fgColor = widget.color ?? defaultColor;
+            let fgColor: string | undefined = widget.color ?? defaultColor;
             let bgColor = widget.backgroundColor;
 
             // Apply theme colors if a theme is set (and not 'custom')
@@ -339,9 +351,11 @@ function renderPowerlineStatusLine(
             // Apply solid override FG color if set (overrides theme). Gradient
             // overrides are applied to widget text during rendering below so
             // powerline separators keep their foreground/background contrast.
-            if (settings.overrideForegroundColor && settings.overrideForegroundColor !== 'none'
-                && !isGradientSpec(settings.overrideForegroundColor)) {
-                fgColor = settings.overrideForegroundColor;
+            const fgOverride = settings.overrideForegroundColor;
+            if (fgOverride === 'none') {
+                fgColor = undefined;
+            } else if (fgOverride && !isGradientSpec(fgOverride)) {
+                fgColor = fgOverride;
             }
 
             widgetElements.push({
@@ -1104,9 +1118,12 @@ export function renderStatusLine(
         // whole-line pass after assembly, so when it will render (color levels above ansi16) we emit
         // no per-widget foreground and let the gradient own it; at ansi16 the gradient is a no-op, so
         // the widget's own foreground is kept.
+        // A 'none' override forces the terminal default foreground.
         let fgColor = foregroundColor;
         const fgOverride = settings.overrideForegroundColor;
-        if (fgOverride && fgOverride !== 'none') {
+        if (fgOverride === 'none') {
+            fgColor = undefined;
+        } else if (fgOverride) {
             if (!isGradientSpec(fgOverride)) {
                 fgColor = fgOverride;
             } else if (colorLevel !== 'ansi16') {
@@ -1115,10 +1132,7 @@ export function renderStatusLine(
         }
 
         // Override background color takes precedence over EVERYTHING, including passed background color
-        let bgColor = backgroundColor;
-        if (settings.overrideBackgroundColor && settings.overrideBackgroundColor !== 'none') {
-            bgColor = settings.overrideBackgroundColor;
-        }
+        const bgColor = resolveOverrideBackground(settings, backgroundColor);
 
         const shouldBold = (settings.globalBold) || bold;
         return applyColors(text, fgColor, bgColor, shouldBold, colorLevel, dim);
@@ -1350,7 +1364,8 @@ export function renderStatusLine(
             const hasColorOverride = Boolean(settings.overrideBackgroundColor && settings.overrideBackgroundColor !== 'none')
                 || Boolean(settings.overrideForegroundColor && settings.overrideForegroundColor !== 'none');
 
-            if (padding && (elem.widget?.backgroundColor || hasColorOverride)) {
+            const widgetBackground = resolveOverrideBackground(settings, elem.widget?.backgroundColor);
+            if (padding && (widgetBackground || hasColorOverride)) {
                 // Apply colors to padding - applyColorsWithOverride will handle the overrides
                 const leadingPadding = omitLeadingPadding || !sideLeadingPadding ? '' : applyColorsWithOverride(sideLeadingPadding, undefined, elem.widget?.backgroundColor);
                 const trailingPadding = omitTrailingPadding || !sideTrailingPadding ? '' : applyColorsWithOverride(sideTrailingPadding, undefined, elem.widget?.backgroundColor);
