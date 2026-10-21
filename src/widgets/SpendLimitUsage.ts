@@ -10,6 +10,7 @@ import type {
 import { getUsagePercentCustomKeybinds } from './shared/usage-display';
 import {
     getUsagePercentWidgetDescription,
+    getUsagePercentWidgetDetails,
     getUsagePercentWidgetDisplayName,
     getUsagePercentWidgetEditorDisplay,
     getUsagePercentWidgetLabel,
@@ -20,6 +21,7 @@ import {
 export class SpendLimitUsageWidget implements Widget {
     getDefaultColor(): string { return 'brightMagenta'; }
     getDescription(): string { return getUsagePercentWidgetDescription('spend-limit'); }
+    getDetails(): string { return getUsagePercentWidgetDetails('spend-limit'); }
     getDisplayName(): string { return getUsagePercentWidgetDisplayName('spend-limit'); }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return getUsagePercentWidgetLabel('spend-limit'); }

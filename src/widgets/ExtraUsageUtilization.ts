@@ -50,6 +50,7 @@ const LABEL = 'Overage: ';
 export class ExtraUsageUtilizationWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
     getDescription(): string { return 'Shows extra usage as a percentage of your monthly limit (Pro/Max overage or Enterprise spend)'; }
+    getDetails(): string { return 'Extra usage spent as a share of your monthly extra usage limit. Extra usage is the billed fallback that keeps you working after plan limits run out; at 100% that fallback is used up until the month resets.'; }
     getDisplayName(): string { return 'Extra Usage Utilization'; }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return LABEL; }

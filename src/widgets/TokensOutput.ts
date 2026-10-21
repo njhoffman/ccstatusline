@@ -9,6 +9,7 @@ export class TokensOutputWidget extends TokenCountWidget {
 
     getDefaultColor(): string { return 'white'; }
     getDescription(): string { return 'Shows output token count for the current session'; }
+    getDetails(): string { return 'Tokens Claude generated this session, including tool calls and code it wrote. Output costs about five times as much per token as input, so long generations drive cost.'; }
     getDisplayName(): string { return 'Tokens Output'; }
 
     protected getTokenCount(context: RenderContext): number | null {

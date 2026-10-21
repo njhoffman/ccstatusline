@@ -14,6 +14,7 @@ import {
 } from './shared/usage-display';
 import {
     getUsagePercentWidgetDescription,
+    getUsagePercentWidgetDetails,
     getUsagePercentWidgetDisplayName,
     getUsagePercentWidgetEditorDisplay,
     getUsagePercentWidgetLabel,
@@ -24,6 +25,7 @@ import {
 export class SessionUsageWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return getUsagePercentWidgetDescription('session'); }
+    getDetails(): string { return getUsagePercentWidgetDetails('session'); }
     getDisplayName(): string { return getUsagePercentWidgetDisplayName('session'); }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return getUsagePercentWidgetLabel('session'); }

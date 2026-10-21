@@ -12,6 +12,7 @@ import type {
 import {
     getSpeedWidgetCustomKeybinds,
     getSpeedWidgetDescription,
+    getSpeedWidgetDetails,
     getSpeedWidgetDisplayName,
     getSpeedWidgetEditorDisplay,
     getSpeedWidgetHideableStates,
@@ -23,6 +24,7 @@ import {
 export class TotalSpeedWidget implements Widget {
     getDefaultColor(): string { return 'cyan'; }
     getDescription(): string { return getSpeedWidgetDescription('total'); }
+    getDetails(): string { return getSpeedWidgetDetails('total'); }
     getDisplayName(): string { return getSpeedWidgetDisplayName('total'); }
     getCategory(): string { return 'Token Speed'; }
     getLabelPrefix(): string { return getSpeedWidgetLabel('total'); }

@@ -9,6 +9,7 @@ export class TokensInputWidget extends TokenCountWidget {
 
     getDefaultColor(): string { return 'blue'; }
     getDescription(): string { return 'Shows input token count for the current session'; }
+    getDetails(): string { return 'Input tokens sent this session that did not go through the prompt cache. They are billed at the full input rate, so a large number next to small cache reads means caching is not saving much.'; }
     getDisplayName(): string { return 'Tokens Input'; }
 
     protected getTokenCount(context: RenderContext): number | null {

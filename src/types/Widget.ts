@@ -47,6 +47,9 @@ export interface HideableState {
 export interface Widget {
     getDefaultColor(): string;
     getDescription(): string;
+    // What the value represents and why it is worth watching, shown under the
+    // description while the widget is selected in the editor and picker
+    getDetails?(): string;
     getDisplayName(): string;
     getCategory(): string;
     getEditorDisplay(item: WidgetItem): WidgetEditorDisplay;

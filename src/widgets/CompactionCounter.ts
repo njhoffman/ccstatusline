@@ -163,6 +163,7 @@ function formatCount(count: number, format: CompactionCounterFormat, icon: strin
 export class CompactionCounterWidget implements Widget {
     getDefaultColor(): string { return 'yellow'; }
     getDescription(): string { return 'Count of context compaction events in the current session.'; }
+    getDetails(): string { return 'How many times this session\'s conversation has been compacted. Each compaction replaces the history with a summary, so a high count means early details may be gone; a fresh session is often better for a new task.'; }
     getDisplayName(): string { return 'Compaction Counter'; }
     getCategory(): string { return 'Context'; }
     getEditorDisplay(item: WidgetItem): WidgetEditorDisplay {

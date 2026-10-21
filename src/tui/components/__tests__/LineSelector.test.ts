@@ -470,7 +470,7 @@ describe('LineSelector', () => {
             await waitFor(() => {
                 expect(view.frame()).toContain('[MOVE MODE]');
             });
-            expect(view.frame()).toContain('↑↓ to move line, ESC or Enter to exit move mode');
+            expect(view.frame()).toContain('↑↓/jk to move line, ESC or Enter to exit move mode');
             expect(view.rows()).toEqual([
                 '◆  ☰ Line 1 (1 widget)',
                 '☰ Line 2 (empty)',

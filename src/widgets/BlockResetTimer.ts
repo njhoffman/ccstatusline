@@ -63,6 +63,7 @@ const USAGE_TIMER_LOADING_MESSAGE = '[Loading]';
 export class BlockResetTimerWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return 'Shows time remaining until current 5hr block reset window'; }
+    getDetails(): string { return 'Time until the current 5-hour block resets and Block Usage drops back to zero. If you are near the limit, this is how long until you can work at full speed again.'; }
     getDisplayName(): string { return 'Block Reset Timer'; }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(item: WidgetItem): string {

@@ -47,6 +47,7 @@ interface SpeedWidgetKindConfig {
     label: string;
     displayName: string;
     description: string;
+    details: string;
     sessionPreview: number;
     windowedPreview: number;
 }
@@ -56,6 +57,7 @@ const SPEED_WIDGET_CONFIG: Record<SpeedWidgetKind, SpeedWidgetKindConfig> = {
         label: 'In: ',
         displayName: 'Input Speed',
         description: 'Shows session-average input token speed (tokens/sec). Optional window: 0-120 seconds (0 = full-session average).',
+        details: 'Input tokens processed per second, averaged over the session or a recent window. Mostly reflects how quickly the API is getting through prompts; large uncached prompts and API load both slow it.',
         sessionPreview: 85.2,
         windowedPreview: 31.5
     },
@@ -63,6 +65,7 @@ const SPEED_WIDGET_CONFIG: Record<SpeedWidgetKind, SpeedWidgetKindConfig> = {
         label: 'Out: ',
         displayName: 'Output Speed',
         description: 'Shows session-average output token speed (tokens/sec). Optional window: 0-120 seconds (0 = full-session average).',
+        details: 'Tokens Claude generates per second, averaged over the session or a recent window. Lower than usual points to API load or a slower model; handy for comparing models or spotting a sluggish session.',
         sessionPreview: 42.5,
         windowedPreview: 26.8
     },
@@ -70,6 +73,7 @@ const SPEED_WIDGET_CONFIG: Record<SpeedWidgetKind, SpeedWidgetKindConfig> = {
         label: 'Total: ',
         displayName: 'Total Speed',
         description: 'Shows session-average total token speed (tokens/sec). Optional window: 0-120 seconds (0 = full-session average).',
+        details: 'Input and output tokens per second combined, averaged over the session or a recent window. One throughput number for how fast the session is moving.',
         sessionPreview: 127.7,
         windowedPreview: 58.3
     }
@@ -100,6 +104,10 @@ export function getSpeedWidgetDisplayName(kind: SpeedWidgetKind): string {
 
 export function getSpeedWidgetLabel(kind: SpeedWidgetKind): string {
     return SPEED_WIDGET_CONFIG[kind].label;
+}
+
+export function getSpeedWidgetDetails(kind: SpeedWidgetKind): string {
+    return SPEED_WIDGET_CONFIG[kind].details;
 }
 
 export function getSpeedWidgetDescription(kind: SpeedWidgetKind): string {

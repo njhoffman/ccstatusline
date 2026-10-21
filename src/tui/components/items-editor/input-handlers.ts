@@ -5,7 +5,10 @@ import type {
     WidgetItemType
 } from '../../../types/Widget';
 import { generateGuid } from '../../../utils/guid';
-import { getPlainInput } from '../../../utils/input-guards';
+import {
+    getPlainInput,
+    withVimArrows
+} from '../../../utils/input-guards';
 import { moveItem } from '../../../utils/move-item';
 import {
     CYCLE_NUMBER_STYLE_ACTION,
@@ -300,6 +303,7 @@ export function handlePickerInputMode({
 }
 
 export interface HandleMoveInputModeArgs {
+    input: string;
     key: InputKey;
     widgets: WidgetItem[];
     selectedIndex: number;
@@ -309,13 +313,15 @@ export interface HandleMoveInputModeArgs {
 }
 
 export function handleMoveInputMode({
-    key,
+    input,
+    key: rawKey,
     widgets,
     selectedIndex,
     onUpdate,
     setSelectedIndex,
     setMoveMode
 }: HandleMoveInputModeArgs): void {
+    const key = withVimArrows(input, rawKey, 'vertical');
     if (key.upArrow && widgets.length > 1) {
         const targetIndex = selectedIndex - 1 < 0 ? widgets.length - 1 : selectedIndex - 1;
         onUpdate(moveItem(widgets, selectedIndex, targetIndex));
@@ -349,7 +355,7 @@ export interface HandleNormalInputModeArgs {
 
 export function handleNormalInputMode({
     input,
-    key,
+    key: rawKey,
     widgets,
     selectedIndex,
     canExcludeAlign = false,
@@ -364,7 +370,8 @@ export function handleNormalInputMode({
     setCustomEditorWidget,
     getUniqueBackgroundColor
 }: HandleNormalInputModeArgs): void {
-    const shortcut = getPlainInput(input, key);
+    const shortcut = getPlainInput(input, rawKey);
+    const key = withVimArrows(input, rawKey, 'vertical');
 
     if (key.upArrow && widgets.length > 0) {
         setSelectedIndex(selectedIndex - 1 < 0 ? widgets.length - 1 : selectedIndex - 1);
@@ -386,7 +393,7 @@ export function handleNormalInputMode({
         if (selectedIndex >= newWidgets.length && selectedIndex > 0) {
             setSelectedIndex(selectedIndex - 1);
         }
-    } else if (shortcut === 'k' && widgets.length > 0) {
+    } else if (shortcut === 'y' && widgets.length > 0) {
         const source = widgets[selectedIndex];
         if (!source) {
             return;

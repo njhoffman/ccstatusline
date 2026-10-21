@@ -13,6 +13,8 @@ import {
     type PropsWithChildren
 } from 'react';
 
+import { withVimArrows } from '../../utils/input-guards';
+
 export interface ListEntry<V = string | number> {
     label: string;
     sublabel?: string;
@@ -72,7 +74,8 @@ export function List<V = string | number>({
         }
     }, [selectedIndex, selectedValue]);
 
-    useInput((_, key) => {
+    useInput((input, rawKey) => {
+        const key = withVimArrows(input, rawKey, 'vertical');
         if (key.upArrow) {
             const prev = selectedIndex - 1;
             const prevIndex = prev < 0

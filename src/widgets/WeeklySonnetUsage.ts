@@ -14,6 +14,7 @@ import {
 } from './shared/usage-display';
 import {
     getUsagePercentWidgetDescription,
+    getUsagePercentWidgetDetails,
     getUsagePercentWidgetDisplayName,
     getUsagePercentWidgetEditorDisplay,
     getUsagePercentWidgetLabel,
@@ -24,6 +25,7 @@ import {
 export class WeeklySonnetUsageWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return getUsagePercentWidgetDescription('weekly-sonnet'); }
+    getDetails(): string { return getUsagePercentWidgetDetails('weekly-sonnet'); }
     getDisplayName(): string { return getUsagePercentWidgetDisplayName('weekly-sonnet'); }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return getUsagePercentWidgetLabel('weekly-sonnet'); }

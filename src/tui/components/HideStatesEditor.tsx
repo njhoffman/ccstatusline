@@ -9,7 +9,10 @@ import type {
     HideableState,
     WidgetItem
 } from '../../types/Widget';
-import { getPlainInput } from '../../utils/input-guards';
+import {
+    getPlainInput,
+    withVimArrows
+} from '../../utils/input-guards';
 import {
     MERGE_TARGET_HIDDEN_HIDEABLE_STATE,
     getEnabledHideStates,
@@ -27,8 +30,9 @@ export const HideStatesEditor: React.FC<HideStatesEditorProps> = ({ widget, stat
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [enabledKeys, setEnabledKeys] = useState<string[]>(() => getEnabledHideStates(widget, states));
 
-    useInput((input, key) => {
-        const shortcut = getPlainInput(input, key);
+    useInput((input, rawKey) => {
+        const shortcut = getPlainInput(input, rawKey);
+        const key = withVimArrows(input, rawKey, 'vertical');
         if (key.return) {
             onComplete(setEnabledHideStates(widget, states, enabledKeys));
         } else if (key.escape) {
@@ -50,7 +54,7 @@ export const HideStatesEditor: React.FC<HideStatesEditorProps> = ({ widget, stat
     return (
         <Box flexDirection='column'>
             <Text bold>Hide</Text>
-            <Text dimColor>↑↓ select, Space toggle, Enter save, ESC cancel</Text>
+            <Text dimColor>↑↓/jk select, Space toggle, Enter save, ESC cancel</Text>
             <Box marginTop={1} flexDirection='column'>
                 {states.map((state, index) => {
                     const isSelected = index === selectedIndex;

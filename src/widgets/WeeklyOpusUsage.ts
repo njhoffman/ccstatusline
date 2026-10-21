@@ -14,6 +14,7 @@ import {
 } from './shared/usage-display';
 import {
     getUsagePercentWidgetDescription,
+    getUsagePercentWidgetDetails,
     getUsagePercentWidgetDisplayName,
     getUsagePercentWidgetEditorDisplay,
     getUsagePercentWidgetLabel,
@@ -24,6 +25,7 @@ import {
 export class WeeklyOpusUsageWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return getUsagePercentWidgetDescription('weekly-opus'); }
+    getDetails(): string { return getUsagePercentWidgetDetails('weekly-opus'); }
     getDisplayName(): string { return getUsagePercentWidgetDisplayName('weekly-opus'); }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return getUsagePercentWidgetLabel('weekly-opus'); }

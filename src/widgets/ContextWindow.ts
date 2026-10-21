@@ -20,6 +20,7 @@ const LABEL = 'Win: ';
 export class ContextWindowWidget implements Widget {
     getDefaultColor(): string { return 'brightBlack'; }
     getDescription(): string { return 'Shows the total context window size for the current model'; }
+    getDetails(): string { return 'The most tokens the current model can hold in one conversation (200k for most models, 1M for long-context ones). It is the ceiling the other context widgets measure against, and switching models can change it.'; }
     getDisplayName(): string { return 'Context Window'; }
     getCategory(): string { return 'Context'; }
     getLabelPrefix(): string { return LABEL; }

@@ -8,7 +8,8 @@ import React, { useState } from 'react';
 import type { Settings } from '../../types/Settings';
 import {
     getPlainInput,
-    shouldInsertInput
+    shouldInsertInput,
+    withVimArrows
 } from '../../utils/input-guards';
 import { BlinkingCursor } from '../../widgets/shared/BlinkingCursor';
 
@@ -219,13 +220,14 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
             }
         } else {
             // Normal mode
+            const navKey = withVimArrows(input, key);
             if (key.escape) {
                 onBack();
-            } else if (key.upArrow && separators.length > 0) {
+            } else if (navKey.upArrow && separators.length > 0) {
                 setSelectedIndex(selectedIndex - 1 < 0 ? separators.length - 1 : selectedIndex - 1);
-            } else if (key.downArrow && separators.length > 0) {
+            } else if (navKey.downArrow && separators.length > 0) {
                 setSelectedIndex(selectedIndex + 1 > separators.length - 1 ? 0 : selectedIndex + 1);
-            } else if ((key.leftArrow || key.rightArrow) && separators.length > 0) {
+            } else if ((navKey.leftArrow || navKey.rightArrow) && separators.length > 0) {
                 // Cycle through preset separators
                 const currentChar = separators[selectedIndex] ?? '\uE0B0';
                 const currentPresetIndex = presetSeparators.findIndex(p => p.char === currentChar);
@@ -235,14 +237,14 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                 let newIndex;
                 if (currentPresetIndex !== -1) {
                     // It's a preset, cycle to next/prev preset
-                    if (key.rightArrow) {
+                    if (navKey.rightArrow) {
                         newIndex = (currentPresetIndex + 1) % presetSeparators.length;
                     } else {
                         newIndex = currentPresetIndex === 0 ? presetSeparators.length - 1 : currentPresetIndex - 1;
                     }
                 } else {
                     // It's a custom separator, cycle to first or last preset
-                    if (key.rightArrow) {
+                    if (navKey.rightArrow) {
                         newIndex = 0; // Go to first preset
                     } else {
                         newIndex = presetSeparators.length - 1; // Go to last preset
@@ -320,7 +322,7 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                     updateSeparators([]);
                 }
                 setSelectedIndex(0);
-            } else if (shortcut === 'h' || shortcut === 'H') {
+            } else if (shortcut === 'x' || shortcut === 'X') {
                 // Enter hex input mode
                 setHexInputMode(true);
                 setHexInput('');
@@ -374,7 +376,7 @@ export const PowerlineSeparatorEditor: React.FC<PowerlineSeparatorEditorProps> =
                 <>
                     <Box>
                         <Text dimColor>
-                            {`↑↓ select, ← → cycle, (a)dd, (i)nsert${canDelete ? ', (d)elete' : ''}, (c)lear, (h)ex${mode === 'separator' ? ', (t)oggle invert' : ''}, ESC back`}
+                            {`↑↓/jk select, ←→/hl cycle, (a)dd, (i)nsert${canDelete ? ', (d)elete' : ''}, (c)lear, he(x)${mode === 'separator' ? ', (t)oggle invert' : ''}, ESC back`}
                         </Text>
                     </Box>
 

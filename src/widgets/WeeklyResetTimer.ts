@@ -133,6 +133,7 @@ function getWeeklyResetModifierText(item: WidgetItem): string | undefined {
 export class WeeklyResetTimerWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return 'Shows time remaining until weekly usage reset'; }
+    getDetails(): string { return 'Time until the weekly usage limits reset. Read it with Weekly Usage to judge how much of the remaining limit you can spend per day before the reset.'; }
     getDisplayName(): string { return 'Weekly Reset Timer'; }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(item: WidgetItem): string {

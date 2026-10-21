@@ -29,6 +29,7 @@ const LABEL = 'Cache Read: ';
 export class CacheReadWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
     getDescription(): string { return 'Shows cache read tokens served from cache, with context share'; }
+    getDetails(): string { return 'Tokens read from the prompt cache, and their share of the prompt, for the last turn or the whole session. This is the cheap part of each request; a high share means Claude is reusing the conversation instead of reprocessing it.'; }
     getDisplayName(): string { return 'Cache Read'; }
     getCategory(): string { return 'Cache'; }
     getLabelPrefix(): string { return LABEL; }

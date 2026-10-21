@@ -14,6 +14,7 @@ import {
 } from './shared/usage-display';
 import {
     getUsagePercentWidgetDescription,
+    getUsagePercentWidgetDetails,
     getUsagePercentWidgetDisplayName,
     getUsagePercentWidgetEditorDisplay,
     getUsagePercentWidgetLabel,
@@ -24,6 +25,7 @@ import {
 export class FableWeeklyUsageWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return getUsagePercentWidgetDescription('fable-weekly'); }
+    getDetails(): string { return getUsagePercentWidgetDetails('fable-weekly'); }
     getDisplayName(): string { return getUsagePercentWidgetDisplayName('fable-weekly'); }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return getUsagePercentWidgetLabel('fable-weekly'); }

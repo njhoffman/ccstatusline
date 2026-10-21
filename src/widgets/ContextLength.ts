@@ -16,6 +16,7 @@ const LABEL = 'Ctx: ';
 export class ContextLengthWidget implements Widget {
     getDefaultColor(): string { return 'brightBlack'; }
     getDescription(): string { return 'Shows the current context window size in tokens'; }
+    getDetails(): string { return 'Tokens Claude is holding in context right now: system prompt, tools, conversation history and file contents sent with the latest request. It grows every turn until a compaction or /clear, and each turn gets slower and costlier as it does.'; }
     getDisplayName(): string { return 'Context Length'; }
     getCategory(): string { return 'Context'; }
     getLabelPrefix(): string { return LABEL; }

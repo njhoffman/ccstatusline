@@ -367,6 +367,7 @@ describe('items-editor input handlers', () => {
         const setMoveMode = vi.fn();
 
         handleMoveInputMode({
+            input: '',
             key: { upArrow: true },
             widgets,
             selectedIndex: 1,
@@ -447,6 +448,7 @@ describe('items-editor input handlers', () => {
         const setSelectedIndex = vi.fn();
 
         handleMoveInputMode({
+            input: '',
             key: { upArrow: true },
             widgets,
             selectedIndex: 0,
@@ -473,6 +475,7 @@ describe('items-editor input handlers', () => {
         const setSelectedIndex = vi.fn();
 
         handleMoveInputMode({
+            input: '',
             key: { downArrow: true },
             widgets,
             selectedIndex: 2,
@@ -487,6 +490,71 @@ describe('items-editor input handlers', () => {
             { id: '2', type: 'tokens-output' }
         ]);
         expect(setSelectedIndex).toHaveBeenCalledWith(0);
+    });
+
+    describe('vim navigation keys', () => {
+        const widgets: WidgetItem[] = [
+            { id: '1', type: 'tokens-input' },
+            { id: '2', type: 'tokens-output' },
+            { id: '3', type: 'context-bar' }
+        ];
+
+        function pressNormal(input: string, selectedIndex = 1) {
+            const onUpdate = vi.fn();
+            const setSelectedIndex = vi.fn();
+            const openWidgetPicker = vi.fn();
+            handleNormalInputMode({
+                input,
+                key: {},
+                widgets,
+                selectedIndex,
+                separatorChars: ['|'],
+                onBack: vi.fn(),
+                onUpdate,
+                setSelectedIndex,
+                setMoveMode: vi.fn(),
+                setShowClearConfirm: vi.fn(),
+                openWidgetPicker,
+                getCustomKeybindsForWidget: (widgetImpl, widget) => widgetImpl.getCustomKeybinds ? widgetImpl.getCustomKeybinds(widget) : [],
+                setCustomEditorWidget: vi.fn()
+            });
+            return { onUpdate, setSelectedIndex, openWidgetPicker };
+        }
+
+        it('selects the next and previous widget with j and k', () => {
+            expect(pressNormal('j').setSelectedIndex).toHaveBeenCalledWith(2);
+            expect(pressNormal('k').setSelectedIndex).toHaveBeenCalledWith(0);
+        });
+
+        it('no longer clones on k', () => {
+            expect(pressNormal('k').onUpdate).not.toHaveBeenCalled();
+        });
+
+        it('leaves h and l to widget keybinds instead of opening the type picker', () => {
+            const { onUpdate, openWidgetPicker } = pressNormal('l', 2);
+            expect(openWidgetPicker).not.toHaveBeenCalled();
+            expect(onUpdate).toHaveBeenCalledWith([
+                widgets[0],
+                widgets[1],
+                { id: '3', type: 'context-bar', metadata: { labels: 'percent' } }
+            ]);
+        });
+
+        it('moves the widget with j and k in move mode', () => {
+            const onUpdate = vi.fn();
+            const setSelectedIndex = vi.fn();
+            handleMoveInputMode({
+                input: 'j',
+                key: {},
+                widgets,
+                selectedIndex: 0,
+                onUpdate,
+                setSelectedIndex,
+                setMoveMode: vi.fn()
+            });
+            expect(onUpdate).toHaveBeenCalledWith([widgets[1], widgets[0], widgets[2]]);
+            expect(setSelectedIndex).toHaveBeenCalledWith(1);
+        });
     });
 
     it('toggles raw value in normal mode for supported widgets', () => {
@@ -851,7 +919,7 @@ describe('items-editor input handlers', () => {
         expect(customEditorState?.widget?.type).toBe('skills');
     });
 
-    describe('k shortcut - clone widget', () => {
+    describe('y shortcut - clone widget', () => {
         it('inserts clone after source and moves selection to clone', () => {
             const widgets: WidgetItem[] = [
                 { id: 'a', type: 'tokens-input' },
@@ -861,7 +929,7 @@ describe('items-editor input handlers', () => {
             const setSelectedIndex = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets,
                 selectedIndex: 0,
@@ -891,7 +959,7 @@ describe('items-editor input handlers', () => {
             const onUpdate = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets,
                 selectedIndex: 0,
@@ -918,7 +986,7 @@ describe('items-editor input handlers', () => {
             const onUpdate = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets,
                 selectedIndex: 0,
@@ -945,7 +1013,7 @@ describe('items-editor input handlers', () => {
             const onUpdate = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets,
                 selectedIndex: 0,
@@ -977,7 +1045,7 @@ describe('items-editor input handlers', () => {
             const onUpdate = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets,
                 selectedIndex: 0,
@@ -1002,7 +1070,7 @@ describe('items-editor input handlers', () => {
             const onUpdate = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets,
                 selectedIndex: 0,
@@ -1027,7 +1095,7 @@ describe('items-editor input handlers', () => {
             const setSelectedIndex = vi.fn();
 
             handleNormalInputMode({
-                input: 'k',
+                input: 'y',
                 key: {},
                 widgets: [],
                 selectedIndex: 0,
@@ -1173,7 +1241,7 @@ describe('items-editor input handlers', () => {
             ['ctrl', { ctrl: true }],
             ['alt', { meta: true }]
         ])('ignores letter shortcuts while %s is held', (_name, key) => {
-            for (const letter of ['a', 'i', 'd', 'k', 'c', 'r', 'm']) {
+            for (const letter of ['a', 'i', 'd', 'y', 'c', 'r', 'm']) {
                 const { onUpdate, openWidgetPicker, setShowClearConfirm } = pressInNormalMode(letter, key, widgets);
                 expect(onUpdate).not.toHaveBeenCalled();
                 expect(openWidgetPicker).not.toHaveBeenCalled();

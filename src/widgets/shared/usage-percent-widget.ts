@@ -50,6 +50,7 @@ interface UsagePercentWidgetKindConfig {
     label: string;
     displayName: string;
     description: string;
+    details: string;
     previewPercent: number;
     usageField: UsagePercentField;
     // The value comes from the statusline payload, so usage API errors say nothing about it.
@@ -61,6 +62,7 @@ const USAGE_PERCENT_WIDGET_CONFIG: Record<UsagePercentWidgetKind, UsagePercentWi
         label: '5h: ',
         displayName: 'Block Usage',
         description: 'Shows the current 5-hour block\'s usage percentage',
+        details: 'How much of your plan\'s 5-hour usage limit you have used. At 100% you are rate-limited until the block resets (see Block Reset Timer). Turn on the cursor to mark how far through the 5 hours you are: usage ahead of the cursor means you will run out before the reset at this pace.',
         previewPercent: 20,
         usageField: 'sessionUsage'
     },
@@ -68,6 +70,7 @@ const USAGE_PERCENT_WIDGET_CONFIG: Record<UsagePercentWidgetKind, UsagePercentWi
         label: 'Weekly: ',
         displayName: 'Weekly Usage',
         description: 'Shows weekly API usage percentage',
+        details: 'How much of your plan\'s weekly usage limit you have used, across all models. Reaching it blocks usage until the weekly reset. With the cursor on, usage ahead of the cursor means you are on track to run out before the week resets.',
         previewPercent: 12,
         usageField: 'weeklyUsage'
     },
@@ -75,6 +78,7 @@ const USAGE_PERCENT_WIDGET_CONFIG: Record<UsagePercentWidgetKind, UsagePercentWi
         label: 'Weekly Sonnet: ',
         displayName: 'Weekly Sonnet Usage',
         description: 'Shows weekly Sonnet API usage percentage',
+        details: 'How much of the separate weekly limit for Sonnet models you have used. It runs alongside the overall weekly limit, so you can run out of Sonnet while other models still have room.',
         previewPercent: 8,
         usageField: 'weeklySonnetUsage'
     },
@@ -82,6 +86,7 @@ const USAGE_PERCENT_WIDGET_CONFIG: Record<UsagePercentWidgetKind, UsagePercentWi
         label: 'Weekly Opus: ',
         displayName: 'Weekly Opus Usage',
         description: 'Shows weekly Opus API usage percentage',
+        details: 'How much of the separate weekly limit for Opus models you have used. It runs alongside the overall weekly limit, so you can run out of Opus while other models still have room.',
         previewPercent: 4,
         usageField: 'weeklyOpusUsage'
     },
@@ -89,6 +94,7 @@ const USAGE_PERCENT_WIDGET_CONFIG: Record<UsagePercentWidgetKind, UsagePercentWi
         label: 'Weekly Fable: ',
         displayName: 'Weekly Fable Usage',
         description: 'Shows Fable-only weekly usage percentage',
+        details: 'How much of the separate weekly limit for Fable models you have used. It runs alongside the overall weekly limit, so you can run out of Fable while other models still have room.',
         previewPercent: 4,
         usageField: 'fableUsage'
     },
@@ -96,6 +102,7 @@ const USAGE_PERCENT_WIDGET_CONFIG: Record<UsagePercentWidgetKind, UsagePercentWi
         label: 'Spend Limit: ',
         displayName: 'Spend Limit Usage',
         description: 'Shows the percentage of your Claude apps gateway spend limit used',
+        details: 'Share of the spend limit set on your Claude apps gateway that has been used. At 100% the whole limit your admin set is spent.',
         previewPercent: 40,
         usageField: 'spendLimitUsage',
         ignoreApiError: true
@@ -155,6 +162,10 @@ export function getUsagePercentWidgetDisplayName(kind: UsagePercentWidgetKind): 
 
 export function getUsagePercentWidgetLabel(kind: UsagePercentWidgetKind): string {
     return USAGE_PERCENT_WIDGET_CONFIG[kind].label;
+}
+
+export function getUsagePercentWidgetDetails(kind: UsagePercentWidgetKind): string {
+    return USAGE_PERCENT_WIDGET_CONFIG[kind].details;
 }
 
 export function getUsagePercentWidgetDescription(kind: UsagePercentWidgetKind): string {

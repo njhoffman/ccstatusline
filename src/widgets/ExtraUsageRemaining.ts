@@ -7,6 +7,8 @@ export class ExtraUsageRemainingWidget extends ExtraUsageAmountWidget {
     protected readonly previewDollars = 3894;
 
     getDescription(): string { return 'Shows what\'s left of your monthly extra usage limit (Pro/Max overage or Enterprise spend)'; }
+
+    getDetails(): string { return 'Dollars left in your monthly extra usage limit: how much billed overage you can still use this month once your plan limits run out.'; }
     getDisplayName(): string { return 'Extra Usage Remaining'; }
 
     protected getDollars(data: RenderUsageData): number | null {

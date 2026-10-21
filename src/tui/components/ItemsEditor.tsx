@@ -71,6 +71,15 @@ function isMergedIntoPreviousWidget(widgets: WidgetItem[], index: number): boole
     return Boolean(widgets[index - 1]?.merge);
 }
 
+// The one-line description, followed by the longer explanation of what the
+// value means when the widget provides one
+const WidgetDescription: React.FC<{ description: string; details?: string }> = ({ description, details }) => (
+    <Box marginTop={1} paddingLeft={2} flexDirection='column'>
+        <Text dimColor>{description}</Text>
+        {details && <Text dimColor italic>{details}</Text>}
+    </Box>
+);
+
 export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onPreviewChange, onBack, lineNumber, settings }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [moveMode, setMoveMode] = useState(false);
@@ -263,6 +272,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onP
 
         if (moveMode) {
             handleMoveInputMode({
+                input,
                 key,
                 widgets,
                 selectedIndex,
@@ -339,13 +349,13 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onP
 
     // Build main help text (without custom keybinds)
     let helpText = hasWidgets
-        ? '↑↓ select, ←→ open type picker'
+        ? '↑↓/jk select, ←→ open type picker'
         : '(a)dd via picker, (i)nsert via picker';
     if (isSeparator) {
         helpText += ', Space edit separator';
     }
     if (hasWidgets) {
-        helpText += ', Enter to move, (a)dd via picker, (i)nsert via picker, (k) clone, (d)elete, (c)lear line';
+        helpText += ', Enter to move, (a)dd via picker, (i)nsert via picker, (y) clone, (d)elete, (c)lear line';
     }
     if (canToggleRaw) {
         helpText += ', (r)aw value';
@@ -463,7 +473,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onP
             </Box>
             {moveMode ? (
                 <Box flexDirection='column' marginBottom={1}>
-                    <Text dimColor>↑↓ to move widget, ESC or Enter to exit move mode</Text>
+                    <Text dimColor>↑↓/jk to move widget, ESC or Enter to exit move mode</Text>
                 </Box>
             ) : widgetPicker ? (
                 <Box flexDirection='column'>
@@ -540,9 +550,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onP
                                         );
                                     })}
                                     {selectedTopLevelSearchEntry && (
-                                        <Box marginTop={1} paddingLeft={2}>
-                                            <Text dimColor>{selectedTopLevelSearchEntry.description}</Text>
-                                        </Box>
+                                        <WidgetDescription description={selectedTopLevelSearchEntry.description} details={selectedTopLevelSearchEntry.details} />
                                     )}
                                 </>
                             )
@@ -603,9 +611,7 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onP
                                     );
                                 })}
                                 {selectedPickerEntry && (
-                                    <Box marginTop={1} paddingLeft={2}>
-                                        <Text dimColor>{selectedPickerEntry.description}</Text>
-                                    </Box>
+                                    <WidgetDescription description={selectedPickerEntry.description} details={selectedPickerEntry.details} />
                                 )}
                             </>
                         )
@@ -671,22 +677,18 @@ export const ItemsEditor: React.FC<ItemsEditorProps> = ({ widgets, onUpdate, onP
                                 );
                             })}
                             {/* Display description for selected widget */}
-                            {currentWidget && (
-                                <Box marginTop={1} paddingLeft={2}>
-                                    <Text dimColor>
-                                        {(() => {
-                                            if (currentWidget.type === 'separator') {
-                                                return 'A separator character between status line widgets';
-                                            } else if (currentWidget.type === 'flex-separator') {
-                                                return 'Expands to fill available terminal width';
-                                            } else {
-                                                const widgetImpl = getWidget(currentWidget.type);
-                                                return widgetImpl ? widgetImpl.getDescription() : 'Unknown widget type';
-                                            }
-                                        })()}
-                                    </Text>
-                                </Box>
-                            )}
+                            {currentWidget && (() => {
+                                if (currentWidget.type === 'separator') {
+                                    return <WidgetDescription description='A separator character between status line widgets' />;
+                                }
+                                if (currentWidget.type === 'flex-separator') {
+                                    return <WidgetDescription description='Expands to fill available terminal width' />;
+                                }
+                                const widgetImpl = getWidget(currentWidget.type);
+                                return widgetImpl
+                                    ? <WidgetDescription description={widgetImpl.getDescription()} details={widgetImpl.getDetails?.()} />
+                                    : <WidgetDescription description='Unknown widget type' />;
+                            })()}
                         </>
                     )}
                 </Box>

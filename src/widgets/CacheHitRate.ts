@@ -31,6 +31,7 @@ const LABEL = 'Cache Hit: ';
 export class CacheHitRateWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
     getDescription(): string { return 'Shows prompt cache hit rate (cache reads vs cache writes)'; }
+    getDetails(): string { return 'Of the input that went through the prompt cache, the share read from it rather than written to it, for the last turn or the whole session. Higher is cheaper: reads cost about a tenth of normal input while writes cost more than normal input. A sudden drop usually means the cache expired or early context changed.'; }
     getDisplayName(): string { return 'Cache Hit Rate'; }
     getCategory(): string { return 'Cache'; }
     getLabelPrefix(): string { return LABEL; }

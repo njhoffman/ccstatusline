@@ -14,6 +14,7 @@ import {
 } from './shared/usage-display';
 import {
     getUsagePercentWidgetDescription,
+    getUsagePercentWidgetDetails,
     getUsagePercentWidgetDisplayName,
     getUsagePercentWidgetEditorDisplay,
     getUsagePercentWidgetLabel,
@@ -24,6 +25,7 @@ import {
 export class WeeklyUsageWidget implements Widget {
     getDefaultColor(): string { return 'brightBlue'; }
     getDescription(): string { return getUsagePercentWidgetDescription('weekly'); }
+    getDetails(): string { return getUsagePercentWidgetDetails('weekly'); }
     getDisplayName(): string { return getUsagePercentWidgetDisplayName('weekly'); }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return getUsagePercentWidgetLabel('weekly'); }

@@ -18,7 +18,8 @@ import {
 import { GRADIENT_PRESET_NAMES } from '../../utils/gradient';
 import {
     getPlainInput,
-    shouldInsertInput
+    shouldInsertInput,
+    withVimArrows
 } from '../../utils/input-guards';
 import { getWidget } from '../../utils/widgets';
 
@@ -202,11 +203,12 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
 
             // Preset list navigation (last item is the "Custom" entry)
             const total = GRADIENT_PRESET_NAMES.length + 1;
+            const navKey = withVimArrows(input, key, 'vertical');
             if (key.escape) {
                 exitGradient();
-            } else if (key.upArrow) {
+            } else if (navKey.upArrow) {
                 setGradientIndex((gradientIndex - 1 + total) % total);
-            } else if (key.downArrow) {
+            } else if (navKey.downArrow) {
                 setGradientIndex((gradientIndex + 1) % total);
             } else if (key.return) {
                 if (gradientIndex < GRADIENT_PRESET_NAMES.length) {
@@ -225,7 +227,9 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
             return;
         }
 
-        // Normal keyboard handling when there are items
+        // Normal keyboard handling when there are items. SelectInput handles
+        // j/k itself, so only h/l need mapping here
+        const navKey = withVimArrows(input, key);
         if (key.escape) {
             if (editingBackground) {
                 setEditingBackground(false);
@@ -238,7 +242,7 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
             if (highlightedItemId === 'back') {
                 onBack();
             }
-        } else if (shortcut === 'h' || shortcut === 'H') {
+        } else if (shortcut === 'x' || shortcut === 'X') {
             // Enter hex input mode (only in truecolor mode)
             if (highlightedItemId && highlightedItemId !== 'back' && settings.colorLevel === 3) {
                 setHexInputMode(true);
@@ -305,7 +309,7 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
         } else if (shortcut === 'c' || shortcut === 'C') {
             // Show clear all confirmation
             setShowClearConfirm(true);
-        } else if (key.leftArrow || key.rightArrow) {
+        } else if (navKey.leftArrow || navKey.rightArrow) {
             // Cycle through colors with arrow keys
             if (highlightedItemId && highlightedItemId !== 'back') {
                 const selectedWidget = colorableWidgets.find(widget => widget.id === highlightedItemId);
@@ -313,7 +317,7 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
                     const newItems = cycleWidgetColor({
                         widgets,
                         widgetId: selectedWidget.id,
-                        direction: key.rightArrow ? 'right' : 'left',
+                        direction: navKey.rightArrow ? 'right' : 'left',
                         editingBackground,
                         colors,
                         backgroundColors: bgColors
@@ -494,7 +498,7 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
                     {widgetName ? ` - ${widgetName}` : ''}
                 </Text>
                 <Box marginTop={1}>
-                    <Text dimColor>↑↓ to select, Enter to apply, ESC to cancel</Text>
+                    <Text dimColor>↑↓/jk to select, Enter to apply, ESC to cancel</Text>
                 </Box>
                 <Box marginTop={1} flexDirection='column'>
                     {GRADIENT_PRESET_NAMES.map((name, idx) => (
@@ -593,11 +597,11 @@ export const ColorMenu: React.FC<ColorMenuProps> = ({ widgets, lineIndex, settin
             ) : (
                 <>
                     <Text dimColor>
-                        ↑↓ to select, ←→ to cycle
+                        ↑↓/jk to select, ←→/hl to cycle
                         {' '}
                         {editingBackground ? 'background' : 'foreground'}
                         , (f) to toggle bg/fg, (b)old, (d)im,
-                        {settings.colorLevel === 3 ? ' (h)ex,' : settings.colorLevel === 2 ? ' (a)nsi256,' : ''}
+                        {settings.colorLevel === 3 ? ' he(x),' : settings.colorLevel === 2 ? ' (a)nsi256,' : ''}
                         {!editingBackground && settings.colorLevel >= 2 ? ' (g)radient,' : ''}
                         {' '}
                         (r)eset, (c)lear all, ESC to go back

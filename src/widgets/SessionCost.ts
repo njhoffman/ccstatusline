@@ -21,6 +21,7 @@ const ZERO_HIDEABLE_STATE: HideableState = { key: 'zero', label: 'when cost is $
 export class SessionCostWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
     getDescription(): string { return 'Shows the total session cost in USD'; }
+    getDetails(): string { return 'Estimated cost of this session in US dollars at API prices, as reported by Claude Code. On a Pro or Max subscription this is what the work would have cost on the API, not what you are billed.'; }
     getDisplayName(): string { return 'Session Cost'; }
     getCategory(): string { return 'Session'; }
     getLabelPrefix(): string { return LABEL; }

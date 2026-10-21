@@ -78,6 +78,43 @@ function StatefulItemsEditor({ initialWidgets }: { initialWidgets: WidgetItem[] 
 }
 
 describe('ItemsEditor', () => {
+    it('shows the selected widget\'s details under its description, following j and k', async () => {
+        const stdin = createMockStdin();
+        const stdout = createMockStdout();
+        const stderr = createMockStdout();
+        const instance = render(
+            React.createElement(StatefulItemsEditor, { initialWidgets: [{ id: '1', type: 'context-bar' }, { id: '2', type: 'git-branch' }] }),
+            { stdin, stdout, stderr, debug: true, exitOnCtrlC: false, patchConsole: false }
+        );
+        const output = () => stripAnsi(stdout.getOutput()).replace(/\s+/g, ' ');
+
+        try {
+            await waitFor(() => {
+                expect(output()).toContain('Shows context usage as a progress bar');
+                expect(output()).toContain('Context length against the full window as a bar');
+            });
+
+            stdout.clearOutput();
+            stdin.write('j');
+            await waitFor(() => {
+                expect(output()).toContain('▶ 2. Git Branch');
+            });
+            expect(output()).not.toContain('Context length against the full window');
+
+            stdout.clearOutput();
+            stdin.write('k');
+            await waitFor(() => {
+                expect(output()).toContain('Context length against the full window as a bar');
+            });
+        } finally {
+            instance.unmount();
+            instance.cleanup();
+            stdin.destroy();
+            stdout.destroy();
+            stderr.destroy();
+        }
+    });
+
     it('shows only non-default number styles beside the widget name', async () => {
         const stdin = createMockStdin();
         const stdout = createMockStdout();

@@ -12,6 +12,7 @@ import type {
 import {
     getSpeedWidgetCustomKeybinds,
     getSpeedWidgetDescription,
+    getSpeedWidgetDetails,
     getSpeedWidgetDisplayName,
     getSpeedWidgetEditorDisplay,
     getSpeedWidgetHideableStates,
@@ -23,6 +24,7 @@ import {
 export class OutputSpeedWidget implements Widget {
     getDefaultColor(): string { return 'cyan'; }
     getDescription(): string { return getSpeedWidgetDescription('output'); }
+    getDetails(): string { return getSpeedWidgetDetails('output'); }
     getDisplayName(): string { return getSpeedWidgetDisplayName('output'); }
     getCategory(): string { return 'Token Speed'; }
     getLabelPrefix(): string { return getSpeedWidgetLabel('output'); }

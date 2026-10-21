@@ -32,6 +32,7 @@ function isWeekdaysOnly(item: WidgetItem): boolean {
 export class ExtraUsageDailyBudgetWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
     getDescription(): string { return 'Shows what\'s left of your monthly extra usage limit per day left in the month, optionally counting weekdays only'; }
+    getDetails(): string { return 'What is left of your monthly extra usage limit divided by the days left in the month, or weekdays only. Spend less than this each day and the limit lasts until the month resets.'; }
     getDisplayName(): string { return 'Extra Usage Daily Budget'; }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return LABEL; }

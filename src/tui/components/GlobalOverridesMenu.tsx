@@ -25,7 +25,8 @@ import {
 import { GRADIENT_PRESET_NAMES } from '../../utils/gradient';
 import {
     getPlainInput,
-    shouldInsertInput
+    shouldInsertInput,
+    withVimArrows
 } from '../../utils/input-guards';
 import { getNextNumberStyle } from '../../utils/number-format';
 
@@ -187,11 +188,12 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
             }
 
             const total = GRADIENT_PRESET_NAMES.length + 1;
+            const navKey = withVimArrows(input, key, 'vertical');
             if (key.escape) {
                 exitGradient();
-            } else if (key.upArrow) {
+            } else if (navKey.upArrow) {
                 setGradientIndex((gradientIndex - 1 + total) % total);
-            } else if (key.downArrow) {
+            } else if (navKey.downArrow) {
                 setGradientIndex((gradientIndex + 1) % total);
             } else if (key.return) {
                 if (gradientIndex < GRADIENT_PRESET_NAMES.length) {
@@ -203,13 +205,14 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
                 }
             }
         } else if (numberFormatMode) {
+            const navKey = withVimArrows(input, key);
             if (key.escape) {
                 setNumberFormatMode(false);
-            } else if (key.upArrow) {
+            } else if (navKey.upArrow) {
                 setNumberFormatKindIndex((numberFormatKindIndex - 1 + NUMBER_KINDS.length) % NUMBER_KINDS.length);
-            } else if (key.downArrow) {
+            } else if (navKey.downArrow) {
                 setNumberFormatKindIndex((numberFormatKindIndex + 1) % NUMBER_KINDS.length);
-            } else if (key.leftArrow || key.rightArrow) {
+            } else if (navKey.leftArrow || navKey.rightArrow) {
                 const kind = NUMBER_KINDS[numberFormatKindIndex];
                 if (kind) {
                     onUpdate(cycleGlobalNumberStyle(settings, kind));
@@ -309,7 +312,7 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
             <Box flexDirection='column'>
                 <Text bold>Global Number Formatting</Text>
                 <Box marginTop={1}>
-                    <Text dimColor>↑↓ to select a number type, ←→ to cycle its style, ESC to go back</Text>
+                    <Text dimColor>↑↓/jk to select a number type, ←→/hl to cycle its style, ESC to go back</Text>
                 </Box>
                 <Box marginTop={1} flexDirection='column'>
                     {NUMBER_KINDS.map((kind, idx) => {
@@ -363,7 +366,7 @@ export const GlobalOverridesMenu: React.FC<GlobalOverridesMenuProps> = ({ settin
             <Box flexDirection='column'>
                 <Text bold>Select Gradient - Override FG Color</Text>
                 <Box marginTop={1}>
-                    <Text dimColor>↑↓ to select, Enter to apply, ESC to cancel</Text>
+                    <Text dimColor>↑↓/jk to select, Enter to apply, ESC to cancel</Text>
                 </Box>
                 <Box marginTop={1} flexDirection='column'>
                     {GRADIENT_PRESET_NAMES.map((name, idx) => (

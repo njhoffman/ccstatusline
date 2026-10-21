@@ -83,6 +83,7 @@ function normalizeMetadata(item: WidgetItem): Record<string, string> {
 export class ContextBarWidget implements Widget {
     getDefaultColor(): string { return 'blue'; }
     getDescription(): string { return 'Shows context usage as a progress bar'; }
+    getDetails(): string { return 'Context length against the full window as a bar, with tokens used, window size and percentage. A quick read on how much room is left before Claude Code has to compact the conversation.'; }
     getDisplayName(): string { return 'Context Bar'; }
     getCategory(): string { return 'Context'; }
     getLabelPrefix(): string { return LABEL; }

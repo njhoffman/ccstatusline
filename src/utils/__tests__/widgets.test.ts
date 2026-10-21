@@ -21,6 +21,30 @@ import {
     type WidgetCatalogEntry
 } from '../widgets';
 
+describe('widget details', () => {
+    const METRIC_CATEGORIES = ['Context', 'Cache', 'Token Speed', 'Tokens', 'Usage'];
+    const settings: Settings = { ...DEFAULT_SETTINGS, powerline: { ...DEFAULT_SETTINGS.powerline } };
+
+    it('gives every metrics widget details that go beyond its description', () => {
+        const metricEntries = getWidgetCatalog(settings).filter(entry => METRIC_CATEGORIES.includes(entry.category));
+        expect(metricEntries.length).toBeGreaterThan(20);
+        for (const entry of metricEntries) {
+            expect(entry.details, entry.type).toBeTruthy();
+            expect(entry.details, entry.type).not.toBe(entry.description);
+        }
+    });
+
+    it('keeps details out of the search text', () => {
+        const entry = getWidgetCatalog(settings).find(candidate => candidate.type === 'context-bar');
+        expect(entry?.details).toContain('compact');
+        expect(entry?.searchText).not.toContain('compact the conversation');
+    });
+
+    it('leaves details undefined for widgets that do not provide them', () => {
+        expect(getWidgetCatalog(settings).find(entry => entry.type === 'git-branch')?.details).toBeUndefined();
+    });
+});
+
 describe('widget catalog', () => {
     const baseSettings: Settings = {
         ...DEFAULT_SETTINGS,

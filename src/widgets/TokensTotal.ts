@@ -8,6 +8,7 @@ export class TokensTotalWidget extends TokenCountWidget {
 
     getDefaultColor(): string { return 'cyan'; }
     getDescription(): string { return 'Shows total token count (input + output + cache) for the current session'; }
+    getDetails(): string { return 'Every token in the session added together: input, output, and cache reads and writes. A rough measure of how much work the session has done; cheap cache reads dominate it, so Session Cost is the better money figure.'; }
     getDisplayName(): string { return 'Tokens Total'; }
 
     protected getTokenCount(context: RenderContext): number | null {

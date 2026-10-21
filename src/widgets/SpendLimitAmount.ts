@@ -15,6 +15,7 @@ const LABEL = 'Spend: ';
 export class SpendLimitAmountWidget implements Widget {
     getDefaultColor(): string { return 'brightMagenta'; }
     getDescription(): string { return 'Shows spend against your Claude apps gateway spend limit in US dollars'; }
+    getDetails(): string { return 'Dollars spent against the spend limit on your Claude apps gateway. The same limit as Spend Limit Usage, shown as an amount instead of a percentage.'; }
     getDisplayName(): string { return 'Spend Limit Amount'; }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(): string { return LABEL; }

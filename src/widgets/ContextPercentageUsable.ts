@@ -33,6 +33,7 @@ import { formatRawOrLabeledValue } from './shared/raw-or-labeled';
 export class ContextPercentageUsableWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
     getDescription(): string { return 'Shows percentage of usable context window used or remaining (80% of max before auto-compact)'; }
+    getDetails(): string { return 'Context length as a share of the usable window, estimated as 80% of the full window, which is roughly where Claude Code auto-compacts. Near 100% a compaction is close: it replaces the history with a summary and can drop details, so running /compact yourself at a good stopping point keeps that under your control.'; }
     getDisplayName(): string { return 'Context % (usable)'; }
     getCategory(): string { return 'Context'; }
     getLabelPrefix(item: WidgetItem): string { return isContextInverse(item) ? 'Ctx(u) Left: ' : 'Ctx(u) Used: '; }

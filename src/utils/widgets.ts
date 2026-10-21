@@ -65,6 +65,7 @@ export interface WidgetCatalogEntry {
     type: WidgetItemType;
     displayName: string;
     description: string;
+    details?: string;
     category: string;
     searchText: string;
 }
@@ -102,6 +103,7 @@ export function getWidgetCatalog(settings: Settings): WidgetCatalogEntry[] {
             type,
             displayName,
             description,
+            details: widget?.getDetails?.(),
             category,
             searchText: `${displayName} ${description} ${type}`.toLowerCase()
         };

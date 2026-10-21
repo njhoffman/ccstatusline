@@ -29,6 +29,7 @@ const LABEL = 'Cache Write: ';
 export class CacheWriteWidget implements Widget {
     getDefaultColor(): string { return 'yellow'; }
     getDescription(): string { return 'Shows cache write tokens written to cache, with context share'; }
+    getDetails(): string { return 'Tokens written to the prompt cache, and their share of the prompt, for the last turn or the whole session. Writes cost more than normal input (1.25x for the 5-minute cache, 2x for the 1-hour cache), so a big write after a long pause is an expensive turn.'; }
     getDisplayName(): string { return 'Cache Write'; }
     getCategory(): string { return 'Cache'; }
     getLabelPrefix(): string { return LABEL; }

@@ -272,6 +272,7 @@ function withGlyph(symbol: string, text: string): string {
 export class CacheTimerWidget implements Widget {
     getDefaultColor(): string { return 'brightCyan'; }
     getDescription(): string { return 'Shows time remaining on the prompt cache TTL (5m by default, 1h configurable)'; }
+    getDetails(): string { return 'Estimated time until the prompt cache expires, counted from the last turn that used it. Reply before it runs out and the next turn reads the context cheaply from the cache; after that the whole context has to be written to the cache again at a higher rate.'; }
     getDisplayName(): string { return 'Cache Timer'; }
     getCategory(): string { return 'Session'; }
     getLabelPrefix(): string { return LABEL; }

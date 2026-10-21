@@ -12,7 +12,10 @@ import React, {
 
 import type { Settings } from '../../types/Settings';
 import type { WidgetItem } from '../../types/Widget';
-import { getPlainInput } from '../../utils/input-guards';
+import {
+    getPlainInput,
+    withVimArrows
+} from '../../utils/input-guards';
 import { moveItem } from '../../utils/move-item';
 
 import { ConfirmDialog } from './ConfirmDialog';
@@ -100,13 +103,14 @@ const LineSelector: React.FC<LineSelectorProps> = ({
         }
 
         if (moveMode) {
-            if (key.upArrow && localLines.length > 1) {
+            const navKey = withVimArrows(input, key, 'vertical');
+            if (navKey.upArrow && localLines.length > 1) {
                 const targetIndex = selectedIndex - 1 < 0 ? localLines.length - 1 : selectedIndex - 1;
                 const newLines = moveItem(localLines, selectedIndex, targetIndex);
                 setLocalLines(newLines);
                 onLinesUpdate(newLines);
                 setSelectedIndex(targetIndex);
-            } else if (key.downArrow && localLines.length > 1) {
+            } else if (navKey.downArrow && localLines.length > 1) {
                 const targetIndex = selectedIndex + 1 > localLines.length - 1 ? 0 : selectedIndex + 1;
                 const newLines = moveItem(localLines, selectedIndex, targetIndex);
                 setLocalLines(newLines);
@@ -237,7 +241,7 @@ const LineSelector: React.FC<LineSelectorProps> = ({
                     Choose which status line to configure
                 </Text>
                 {moveMode ? (
-                    <Text dimColor>↑↓ to move line, ESC or Enter to exit move mode</Text>
+                    <Text dimColor>↑↓/jk to move line, ESC or Enter to exit move mode</Text>
                 ) : (
                     <Text dimColor>
                         {allowEditing ? (

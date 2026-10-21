@@ -37,6 +37,7 @@ function formatDurationFromMs(durationMs: number): string {
 export class SessionClockWidget implements Widget {
     getDefaultColor(): string { return 'yellow'; }
     getDescription(): string { return 'Shows elapsed time since current session started'; }
+    getDetails(): string { return 'How long this session has been running. Long sessions build up context and compactions, so it is a nudge to start fresh for unrelated work.'; }
     getDisplayName(): string { return 'Session Clock'; }
     getCategory(): string { return 'Session'; }
     getLabelPrefix(): string { return LABEL; }

@@ -42,6 +42,7 @@ const NO_DATA_HIDEABLE_STATE: HideableState = { key: 'no-data', label: 'when the
 export class BlockTimerWidget implements Widget {
     getDefaultColor(): string { return 'yellow'; }
     getDescription(): string { return 'Shows current 5hr block elapsed time or progress'; }
+    getDetails(): string { return 'How far you are into the current 5-hour usage block, as elapsed time or a progress bar. Compare it with Block Usage: if usage is ahead of the time elapsed, you will hit the limit before the block resets.'; }
     getDisplayName(): string { return 'Block Timer'; }
     getCategory(): string { return 'Usage'; }
     getLabelPrefix(item: WidgetItem): string {
