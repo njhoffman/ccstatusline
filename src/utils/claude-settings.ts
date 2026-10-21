@@ -274,6 +274,10 @@ export function isBunxAvailable(): boolean {
     return isExecutableAvailable('bunx');
 }
 
+export function isLocalCommandAvailable(): boolean {
+    return isExecutableAvailable(CCSTATUSLINE_COMMANDS.GLOBAL);
+}
+
 export function getPackageCommandAvailability(): PackageCommandAvailability {
     return {
         npm: isNpmAvailable(),

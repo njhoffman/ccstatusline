@@ -64,6 +64,7 @@ export function setUpAppSandbox(): AppSandbox {
     initConfigPath(settingsPath);
     vi.spyOn(claudeSettings, 'isClaudeCodeVersionAtLeast').mockReturnValue(false);
     vi.spyOn(claudeSettings, 'getPackageCommandAvailability').mockReturnValue({ npm: true, npx: true, bun: false, bunx: false });
+    vi.spyOn(claudeSettings, 'isLocalCommandAvailable').mockReturnValue(true);
     vi.spyOn(powerline, 'checkPowerlineFonts').mockReturnValue({ installed: true });
     vi.spyOn(powerline, 'checkPowerlineFontsAsync').mockResolvedValue({ installed: true });
     vi.spyOn(globalCommandResolution, 'inspectGlobalCommandResolution').mockReturnValue({

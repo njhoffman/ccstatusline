@@ -19,12 +19,12 @@ import {
     type ListEntry
 } from './List';
 
-export type InstallUpdateStyle = 'auto-update' | 'pinned';
+export type InstallUpdateStyle = 'auto-update' | 'pinned' | 'local';
 export type InstallPackageManager = 'npm' | 'bun';
 
 export interface InstallSelection {
     updateStyle: InstallUpdateStyle;
-    packageManager: InstallPackageManager;
+    packageManager?: InstallPackageManager;
     commandMode: StatusLineCommandMode;
     metadata: InstallationMetadata;
     displayedCommand: string;
@@ -33,6 +33,7 @@ export interface InstallSelection {
 
 export interface InstallMenuProps {
     commandAvailability: PackageCommandAvailability;
+    localCommandAvailable?: boolean;
     currentVersion: string;
     existingStatusLine: string | null;
     onSelect: (selection: InstallSelection) => void;
@@ -44,11 +45,13 @@ type InstallStep = 'style' | 'manager';
 
 const AUTO_UPDATE_DESCRIPTION = 'Runs `@latest` through npx/bunx. Stays current automatically, with a small startup cost when the package runner checks or resolves the package. Because it follows the latest published package, pinned install is available if you prefer explicit updates.';
 
+const LOCAL_DESCRIPTION = 'Claude Code runs the `ccstatusline` already on your PATH (for example a local build or linked checkout). Nothing is installed or updated; you manage that binary yourself.';
+
 function getPinnedDescription(currentVersion: string): string {
     return `Installs \`ccstatusline@${currentVersion}\` globally and Claude Code runs \`ccstatusline\`. Fast on each render because Claude Code runs the installed ccstatusline binary directly. The version changes only when you update the global install.`;
 }
 
-function getStyleItems(currentVersion: string): ListEntry<InstallUpdateStyle>[] {
+function getStyleItems(currentVersion: string, localCommandAvailable: boolean): ListEntry<InstallUpdateStyle>[] {
     return [
         {
             label: 'Pinned global install',
@@ -59,6 +62,13 @@ function getStyleItems(currentVersion: string): ListEntry<InstallUpdateStyle>[] 
             label: 'Auto-update',
             value: 'auto-update',
             description: AUTO_UPDATE_DESCRIPTION
+        },
+        {
+            label: 'Use existing local install',
+            value: 'local',
+            disabled: !localCommandAvailable,
+            sublabel: localCommandAvailable ? undefined : '(ccstatusline not found on PATH)',
+            description: LOCAL_DESCRIPTION
         }
     ];
 }
@@ -101,8 +111,20 @@ function getManagerItems(
     ];
 }
 
+function buildLocalSelection(): InstallSelection {
+    return {
+        updateStyle: 'local',
+        commandMode: 'global',
+        displayedCommand: CCSTATUSLINE_COMMANDS.GLOBAL,
+        metadata: {
+            method: 'self-managed',
+            packageManager: 'unknown'
+        }
+    };
+}
+
 function buildSelection(
-    updateStyle: InstallUpdateStyle,
+    updateStyle: Exclude<InstallUpdateStyle, 'local'>,
     packageManager: InstallPackageManager,
     currentVersion: string
 ): InstallSelection {
@@ -140,6 +162,7 @@ function buildSelection(
 
 export const InstallMenu: React.FC<InstallMenuProps> = ({
     commandAvailability,
+    localCommandAvailable = true,
     currentVersion,
     existingStatusLine,
     onSelect,
@@ -147,7 +170,7 @@ export const InstallMenu: React.FC<InstallMenuProps> = ({
     initialPackageSelection = 0
 }) => {
     const [step, setStep] = useState<InstallStep>('style');
-    const [updateStyle, setUpdateStyle] = useState<InstallUpdateStyle>('pinned');
+    const [updateStyle, setUpdateStyle] = useState<Exclude<InstallUpdateStyle, 'local'>>('pinned');
 
     useInput((_, key) => {
         if (key.escape) {
@@ -183,10 +206,15 @@ export const InstallMenu: React.FC<InstallMenuProps> = ({
                     <List
                         color='blue'
                         marginTop={1}
-                        items={getStyleItems(currentVersion)}
+                        items={getStyleItems(currentVersion, localCommandAvailable)}
                         onSelect={(value) => {
                             if (value === 'back') {
                                 onCancel();
+                                return;
+                            }
+
+                            if (value === 'local') {
+                                onSelect(buildLocalSelection());
                                 return;
                             }
 

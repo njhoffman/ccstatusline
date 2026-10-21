@@ -30,6 +30,7 @@ import {
     isClaudeCodeVersionAtLeast,
     isInstalled,
     isKnownCommand,
+    isLocalCommandAvailable,
     setRefreshInterval,
     uninstallStatusLine
 } from '../utils/claude-settings';
@@ -500,6 +501,7 @@ export const App: React.FC = () => {
     const [currentRefreshInterval, setCurrentRefreshInterval] = useState<number | null>(null);
     const [supportsRefreshInterval] = useState(() => isClaudeCodeVersionAtLeast('2.1.97'));
     const [commandAvailability] = useState(() => getPackageCommandAvailability());
+    const [localCommandAvailable] = useState(() => isLocalCommandAvailable());
     const [updateCheckerState, setUpdateCheckerState] = useState<UpdateCheckerState>({ status: 'checking' });
     const [flowNotice, setFlowNotice] = useState<FlowNoticeState | null>(null);
     const [globalPackageInstallations, setGlobalPackageInstallations] = useState<GlobalPackageInstallation[]>([]);
@@ -672,7 +674,7 @@ export const App: React.FC = () => {
                 cancelScreen: 'install',
                 action: async () => {
                     try {
-                        if (selection.globalInstallCommand) {
+                        if (selection.globalInstallCommand && selection.packageManager) {
                             await runGlobalPackageInstall(selection.packageManager, getPackageVersion());
                         }
 
@@ -700,7 +702,7 @@ export const App: React.FC = () => {
                             ...prev,
                             main: getMainMenuInstallSelectionIndex(true, selection.metadata)
                         }));
-                        const resolutionWarning = selection.globalInstallCommand
+                        const resolutionWarning = selection.globalInstallCommand && selection.packageManager
                             ? getGlobalResolutionWarning(selection.packageManager)
                             : null;
 
@@ -1369,13 +1371,16 @@ export const App: React.FC = () => {
                 {screen === 'install' && (
                     <InstallMenu
                         commandAvailability={commandAvailability}
+                        localCommandAvailable={localCommandAvailable}
                         currentVersion={getPackageVersion()}
                         existingStatusLine={existingStatusLine}
                         onSelect={(selection) => {
-                            setMenuSelections(prev => ({
-                                ...prev,
-                                installPackage: selection.packageManager === 'bun' ? 1 : 0
-                            }));
+                            if (selection.packageManager) {
+                                setMenuSelections(prev => ({
+                                    ...prev,
+                                    installPackage: selection.packageManager === 'bun' ? 1 : 0
+                                }));
+                            }
                             handleInstallSelection(selection);
                         }}
                         onCancel={handleInstallMenuCancel}

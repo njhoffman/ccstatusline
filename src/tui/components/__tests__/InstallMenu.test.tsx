@@ -280,4 +280,120 @@ describe('InstallMenu', () => {
             stderr.destroy();
         }
     });
+
+    it('lists the local install option third and selects it without a package manager step', async () => {
+        const stdin = createMockStdin();
+        const stdout = createMockStdout();
+        const stderr = createMockStdout();
+        const onSelect = vi.fn();
+        const instance = render(
+            React.createElement(InstallMenu, {
+                commandAvailability: ALL_AVAILABLE,
+                localCommandAvailable: true,
+                currentVersion: '2.2.13',
+                existingStatusLine: null,
+                onSelect,
+                onCancel: vi.fn()
+            }),
+            {
+                stdin,
+                stdout,
+                stderr,
+                debug: true,
+                exitOnCtrlC: false,
+                patchConsole: false
+            }
+        );
+
+        try {
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('Use existing local install');
+            });
+
+            const output = stdout.getOutput();
+            expect(output.indexOf('Auto-update')).toBeLessThan(output.indexOf('Use existing local install'));
+            expect(output).not.toContain('(ccstatusline not found on PATH)');
+
+            stdin.write('\u001B[B');
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('▶  Auto-update');
+            });
+            stdin.write('\u001B[B');
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('▶  Use existing local install');
+            });
+            stdout.clearOutput();
+            stdin.write('\r');
+            await waitFor(() => {
+                expect(onSelect).toHaveBeenCalledTimes(1);
+            });
+
+            expect(onSelect).toHaveBeenCalledWith({
+                updateStyle: 'local',
+                commandMode: 'global',
+                displayedCommand: 'ccstatusline',
+                metadata: {
+                    method: 'self-managed',
+                    packageManager: 'unknown'
+                }
+            });
+            expect(stdout.getOutput()).not.toContain('Select package manager');
+        } finally {
+            instance.unmount();
+            instance.cleanup();
+            stdin.destroy();
+            stdout.destroy();
+            stderr.destroy();
+        }
+    });
+
+    it('disables the local install option when ccstatusline is not on PATH', async () => {
+        const stdin = createMockStdin();
+        const stdout = createMockStdout();
+        const stderr = createMockStdout();
+        const onSelect = vi.fn();
+        const instance = render(
+            React.createElement(InstallMenu, {
+                commandAvailability: ALL_AVAILABLE,
+                localCommandAvailable: false,
+                currentVersion: '2.2.13',
+                existingStatusLine: null,
+                onSelect,
+                onCancel: vi.fn()
+            }),
+            {
+                stdin,
+                stdout,
+                stderr,
+                debug: true,
+                exitOnCtrlC: false,
+                patchConsole: false
+            }
+        );
+
+        try {
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('(ccstatusline not found on PATH)');
+            });
+
+            stdin.write('\u001B[B');
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('▶  Auto-update');
+            });
+            stdout.clearOutput();
+            stdin.write('\u001B[B');
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('▶  ← Back');
+            });
+
+            expect(stdout.getOutput()).not.toContain('▶  Use existing local install');
+            expect(onSelect).not.toHaveBeenCalled();
+        } finally {
+            instance.unmount();
+            instance.cleanup();
+            stdin.destroy();
+            stdout.destroy();
+            stderr.destroy();
+        }
+    });
 });
