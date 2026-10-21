@@ -1,6 +1,6 @@
 {
   "name": "ccstatusline",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Customizable status line formatter for Claude Code CLI with widget styles, powerline themes, and 40+ widgets",
   "author": {
     "name": "sirmalloc"
