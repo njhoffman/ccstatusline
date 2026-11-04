@@ -27,6 +27,7 @@ interface LineSelectorProps {
     onBack: () => void;
     onLinesUpdate: (lines: WidgetItem[][]) => void;
     initialSelection?: number;
+    onSelectionChange?: (index: number) => void;
     title?: string;
     blockIfPowerlineActive?: boolean;
     settings?: Settings;
@@ -39,6 +40,7 @@ const LineSelector: React.FC<LineSelectorProps> = ({
     onBack,
     onLinesUpdate,
     initialSelection = 0,
+    onSelectionChange,
     title,
     blockIfPowerlineActive = false,
     settings,
@@ -56,6 +58,10 @@ const LineSelector: React.FC<LineSelectorProps> = ({
     useEffect(() => {
         setSelectedIndex(initialSelection);
     }, [initialSelection]);
+
+    useEffect(() => {
+        onSelectionChange?.(selectedIndex);
+    }, [onSelectionChange, selectedIndex]);
 
     const selectedLine = useMemo(
         () => localLines[selectedIndex],

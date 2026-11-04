@@ -29,7 +29,6 @@ const OVERRIDE_BG_CODE = '\x1b[48;2;255;0;0m';
 function createSettings(overrides: Partial<Settings> = {}): Settings {
     return {
         ...DEFAULT_SETTINGS,
-        flexMode: 'full',
         colorLevel: 3,
         defaultPadding: ' ',
         ...overrides,

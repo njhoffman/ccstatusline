@@ -15,6 +15,5 @@ export * from './PowerlineSetup';
 export * from './RefreshIntervalMenu';
 export * from './StatusLinePreview';
 export * from './TerminalOptionsMenu';
-export * from './TerminalWidthMenu';
 export * from './UpdateCheckerMenu';
 export * from './WidgetStyleSelector';

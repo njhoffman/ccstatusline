@@ -6,6 +6,10 @@ import type {
     WidgetEditorDisplay,
     WidgetItem
 } from '../types/Widget';
+import {
+    getAutoCompactConfig,
+    resolveClaudeConfigCwd
+} from '../utils/claude-settings';
 import { getContextWindowMetrics } from '../utils/context-window';
 import {
     getContextConfig,
@@ -32,8 +36,8 @@ import { formatRawOrLabeledValue } from './shared/raw-or-labeled';
 
 export class ContextPercentageUsableWidget implements Widget {
     getDefaultColor(): string { return 'green'; }
-    getDescription(): string { return 'Shows percentage of usable context window used or remaining (80% of max before auto-compact)'; }
-    getDetails(): string { return 'Context length as a share of the usable window, estimated as 80% of the full window, which is roughly where Claude Code auto-compacts. Near 100% a compaction is close: it replaces the history with a summary and can drop details, so running /compact yourself at a good stopping point keeps that under your control.'; }
+    getDescription(): string { return 'Shows used or remaining context against an estimated compaction budget.\nHonors Claude Code compaction settings and environment overrides; defaults to an 80% estimate.'; }
+    getDetails(): string { return 'Context length as a share of the usable window, estimated from Claude Code\'s compaction settings and defaulting to 80% of the full window, which is roughly where it auto-compacts. Near 100% a compaction is close: it replaces the history with a summary and can drop details, so running /compact yourself at a good stopping point keeps that under your control.'; }
     getDisplayName(): string { return 'Context % (usable)'; }
     getCategory(): string { return 'Context'; }
     getLabelPrefix(item: WidgetItem): string { return isContextInverse(item) ? 'Ctx(u) Left: ' : 'Ctx(u) Used: '; }
@@ -58,9 +62,6 @@ export class ContextPercentageUsableWidget implements Widget {
     render(item: WidgetItem, context: RenderContext, settings: Settings): string | null {
         const isInverse = isContextInverse(item);
         const sliderMode = getContextSliderMode(item);
-        const modelIdentifier = getModelContextIdentifier(context.data?.model);
-        const contextWindowMetrics = getContextWindowMetrics(context.data);
-        const contextConfig = getContextConfig(modelIdentifier, contextWindowMetrics.windowSize);
         const format = resolveNumberFormat('percent', item, settings);
 
         const formatContextPercentage = (displayPercentage: number): string => {
@@ -71,6 +72,11 @@ export class ContextPercentageUsableWidget implements Widget {
         if (context.isPreview) {
             return formatContextPercentage(isInverse ? 88.4 : 11.6);
         }
+
+        const modelIdentifier = getModelContextIdentifier(context.data?.model);
+        const contextWindowMetrics = getContextWindowMetrics(context.data);
+        const autoCompact = getAutoCompactConfig(resolveClaudeConfigCwd(context));
+        const contextConfig = getContextConfig(modelIdentifier, contextWindowMetrics.windowSize, autoCompact);
 
         if (contextWindowMetrics.contextLengthTokens !== null) {
             const usedPercentage = Math.min(100, (contextWindowMetrics.contextLengthTokens / contextConfig.usableTokens) * 100);

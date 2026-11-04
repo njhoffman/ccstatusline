@@ -56,7 +56,7 @@ const SPEED_WIDGET_CONFIG: Record<SpeedWidgetKind, SpeedWidgetKindConfig> = {
     input: {
         label: 'In: ',
         displayName: 'Input Speed',
-        description: 'Shows session-average input token speed (tokens/sec). Optional window: 0-120 seconds (0 = full-session average).',
+        description: 'Shows session-average input token speed (tokens/sec). Optional window: 0-3600 seconds (0 = full-session average).',
         details: 'Input tokens processed per second, averaged over the session or a recent window. Mostly reflects how quickly the API is getting through prompts; large uncached prompts and API load both slow it.',
         sessionPreview: 85.2,
         windowedPreview: 31.5
@@ -64,7 +64,7 @@ const SPEED_WIDGET_CONFIG: Record<SpeedWidgetKind, SpeedWidgetKindConfig> = {
     output: {
         label: 'Out: ',
         displayName: 'Output Speed',
-        description: 'Shows session-average output token speed (tokens/sec). Optional window: 0-120 seconds (0 = full-session average).',
+        description: 'Shows session-average output token speed (tokens/sec). Optional window: 0-3600 seconds (0 = full-session average).',
         details: 'Tokens Claude generates per second, averaged over the session or a recent window. Lower than usual points to API load or a slower model; handy for comparing models or spotting a sluggish session.',
         sessionPreview: 42.5,
         windowedPreview: 26.8
@@ -72,7 +72,7 @@ const SPEED_WIDGET_CONFIG: Record<SpeedWidgetKind, SpeedWidgetKindConfig> = {
     total: {
         label: 'Total: ',
         displayName: 'Total Speed',
-        description: 'Shows session-average total token speed (tokens/sec). Optional window: 0-120 seconds (0 = full-session average).',
+        description: 'Shows session-average total token speed (tokens/sec). Optional window: 0-3600 seconds (0 = full-session average).',
         details: 'Input and output tokens per second combined, averaged over the session or a recent window. One throughput number for how fast the session is moving.',
         sessionPreview: 127.7,
         windowedPreview: 58.3
