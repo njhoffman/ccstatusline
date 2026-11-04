@@ -224,7 +224,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
     return (
         <Box flexDirection='column'>
-            <Text bold>Main Menu</Text>
+            <Text>
+                <Text bold>Main Menu</Text>
+                <Text dimColor> (q to quit)</Text>
+            </Text>
 
             <List
                 items={menuItems}

@@ -100,6 +100,7 @@ import {
     MainMenu,
     ManageInstallationMenu,
     PowerlineSetup,
+    QuitPrompt,
     RefreshIntervalMenu,
     StatusLinePreview,
     TerminalOptionsMenu,
@@ -136,6 +137,7 @@ type AppScreen = 'main'
     | 'widgetStyle'
     | 'install'
     | 'flowNotice'
+    | 'quitPrompt'
     | 'manageInstallation'
     | 'uninstallOptions'
     | 'updates'
@@ -647,8 +649,16 @@ export const App: React.FC = () => {
             exit();
             return;
         }
+        if (input === 'q' && screen === 'main' && settings && !actionInFlightRef.current) {
+            if (hasChanges) {
+                setScreen('quitPrompt');
+            } else {
+                exit();
+            }
+            return;
+        }
         // Global save shortcut
-        if (key.ctrl && input === 's' && settings && screen !== 'confirm') {
+        if (key.ctrl && input === 's' && settings && screen !== 'confirm' && screen !== 'quitPrompt') {
             const installation = isClaudeInstalled
                 ? classifyInstalledStatusLine(existingStatusLine, settings.installation)
                 : classifyInstallation(existingStatusLine, settings.installation);
@@ -1329,6 +1339,16 @@ export const App: React.FC = () => {
                         onSelectionChange={(index) => { setMenuSelections(prev => ({ ...prev, main: index })); }}
                         powerlineFontStatus={powerlineFontStatus}
                         installation={effectiveInstallation}
+                    />
+                )}
+                {screen === 'quitPrompt' && (
+                    <QuitPrompt
+                        onSelect={(action) => {
+                            setScreen('main');
+                            if (action !== 'cancel') {
+                                void handleMainMenuSelect(action);
+                            }
+                        }}
                     />
                 )}
                 {screen === 'lines' && (
