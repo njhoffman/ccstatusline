@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.5] - 2026-11-04
+
+### Added
+
+- Direct tests for the small widgets, the confirm, label, import and export dialogs, the widget style selector and a few utilities. Nothing changes for users.
+
 ## [2.8.4] - 2026-11-04
 
 ### Changed
