@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.7.1] - 2026-11-04
+
+### Fixed
+
+- Menus no longer jump back a line when you press keys quickly. The position a menu had just reported could come back after a newer keypress and overwrite it.
+
 ## [2.7.0] - 2026-11-03
 
 ### Added
