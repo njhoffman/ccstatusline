@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-11-04
+
+### Added
+
+- Press q on the main menu to quit. With unsaved changes it asks whether to save, discard or keep editing; otherwise it exits straight away.
+
 ## [2.7.1] - 2026-11-04
 
 ### Fixed
