@@ -536,6 +536,71 @@ describe('refreshInterval', () => {
     });
 });
 
+describe('saveClaudeSettings writes atomically', () => {
+    const NEW_SETTINGS = { statusLine: { type: 'command', command: 'new-command', padding: 0 } };
+
+    function tempFiles(dir: string): string[] {
+        return fs.readdirSync(dir).filter(name => name.endsWith('.tmp'));
+    }
+
+    it('replaces the file rather than rewriting it in place, leaving no temp file', async () => {
+        writeRawClaudeSettings('{"old":true}');
+        const settingsPath = getClaudeSettingsPath();
+        const before = fs.statSync(settingsPath).ino;
+
+        await saveClaudeSettings(NEW_SETTINGS);
+
+        expect(fs.statSync(settingsPath).ino).not.toBe(before);
+        expect(JSON.parse(fs.readFileSync(settingsPath, 'utf-8'))).toEqual(NEW_SETTINGS);
+        expect(tempFiles(path.dirname(settingsPath))).toEqual([]);
+    });
+
+    it('creates the config directory for a first save', async () => {
+        process.env.CLAUDE_CONFIG_DIR = path.join(testClaudeConfigDir, 'not', 'yet', 'there');
+
+        await saveClaudeSettings(NEW_SETTINGS);
+
+        expect(JSON.parse(fs.readFileSync(getClaudeSettingsPath(), 'utf-8'))).toEqual(NEW_SETTINGS);
+    });
+
+    it('keeps the permissions of the file it replaces', async () => {
+        writeRawClaudeSettings('{}');
+        const settingsPath = getClaudeSettingsPath();
+        fs.chmodSync(settingsPath, 0o600);
+
+        await saveClaudeSettings(NEW_SETTINGS);
+
+        expect(fs.statSync(settingsPath).mode & 0o777).toBe(0o600);
+    });
+
+    it('writes through a symlink, keeping the link', async () => {
+        const settingsPath = getClaudeSettingsPath();
+        const dotfilesDir = path.join(testClaudeConfigDir, 'dotfiles');
+        const realPath = path.join(dotfilesDir, 'claude-settings.json');
+        fs.mkdirSync(dotfilesDir);
+        fs.writeFileSync(realPath, '{}');
+        fs.symlinkSync(realPath, settingsPath);
+
+        await saveClaudeSettings(NEW_SETTINGS);
+
+        expect(fs.lstatSync(settingsPath).isSymbolicLink()).toBe(true);
+        expect(JSON.parse(fs.readFileSync(realPath, 'utf-8'))).toEqual(NEW_SETTINGS);
+        expect(tempFiles(dotfilesDir)).toEqual([]);
+        expect(tempFiles(testClaudeConfigDir)).toEqual([]);
+    });
+
+    it('cleans up its temp file when the final step fails', async () => {
+        const settingsPath = getClaudeSettingsPath();
+        // Renaming a file over a directory fails, after the temp file is written
+        fs.mkdirSync(settingsPath);
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(saveClaudeSettings(NEW_SETTINGS)).rejects.toThrow();
+
+        expect(tempFiles(path.dirname(settingsPath))).toEqual([]);
+    });
+});
+
 describe('backup and error handling behavior', () => {
     it('saveClaudeSettings should create .bak backup before overwrite', async () => {
         writeRawClaudeSettings(JSON.stringify({

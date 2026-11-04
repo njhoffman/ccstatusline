@@ -15,7 +15,8 @@ import {
 import {
     getConfigPath,
     isCustomConfigPath,
-    saveInstallationMetadata
+    saveInstallationMetadata,
+    writeSettingsJson
 } from './config';
 
 // Re-export for backward compatibility
@@ -24,7 +25,6 @@ export type { ClaudeSettings };
 // Use fs.promises directly
 const readFile = fs.promises.readFile;
 const writeFile = fs.promises.writeFile;
-const mkdir = fs.promises.mkdir;
 const stat = fs.promises.stat;
 const unlink = fs.promises.unlink;
 
@@ -222,13 +222,12 @@ export async function saveClaudeSettings(
     settings: ClaudeSettings
 ): Promise<void> {
     const settingsPath = getClaudeSettingsPath();
-    const dir = path.dirname(settingsPath);
 
     // Backup settings before overwriting
     await backupClaudeSettings();
 
-    await mkdir(dir, { recursive: true });
-    await writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+    // Claude Code reads this file while it runs, so it must never see half a write
+    await writeSettingsJson(settings, { configDir: path.dirname(settingsPath), settingsPath });
 }
 
 export async function isInstalled(): Promise<boolean> {

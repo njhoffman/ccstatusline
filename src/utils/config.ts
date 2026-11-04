@@ -55,7 +55,7 @@ export function isCustomConfigPath(): boolean {
     return settingsPath !== getDefaultSettingsPath();
 }
 
-interface SettingsPaths {
+export interface SettingsPaths {
     configDir: string;
     settingsPath: string;
 }
@@ -128,7 +128,7 @@ async function getReplacedFileMode(filePath: string): Promise<number> {
     }
 }
 
-async function writeSettingsJson(settings: unknown, paths: SettingsPaths): Promise<void> {
+export async function writeSettingsJson(settings: unknown, paths: SettingsPaths): Promise<void> {
     await mkdir(paths.configDir, { recursive: true });
 
     // Write to a unique temp file in the same directory, then atomically rename
