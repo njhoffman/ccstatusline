@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-11-04
+
+### Added
+
+- Git Root Dir works in directories tracked by dotbare: outside any git repo it shows the project's name in its own color instead of "no git". Set `metadata.dotbareColor` to change the color.
+
 ## [2.8.8] - 2026-11-04
 
 ### Fixed
