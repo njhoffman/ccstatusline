@@ -24,7 +24,7 @@ echo '{"model":{"id":"claude-sonnet-4-5-20250929[1m]"},"transcript_path":"test.j
 bun run example
 
 # Build for npm distribution
-bun run build   # Creates dist/ccstatusline.js with Node.js 14+ compatibility
+bun run build   # Creates dist/ccstatusline.js for Node.js 20+
 
 # Run tests
 bun test
@@ -49,11 +49,11 @@ The project has dual runtime compatibility - works with both Bun and Node.js:
   - Interactive mode: Launches React/Ink TUI for configuration
 
 ### TUI Components (src/tui/)
-- **index.tsx**: Main TUI entry point that handles React/Ink initialization
+- **index.tsx**: Main TUI entry point: supplies ink to the widget wrapper (see "ink in widgets") and exports `runTUI`
 - **App.tsx**: Root component managing navigation and state
 - **components/**: Modular UI components for different configuration screens
   - MainMenu, LineSelector, ItemsEditor, ColorMenu, GlobalOverridesMenu
-  - PowerlineSetup, TerminalOptionsMenu, StatusLinePreview
+  - PowerlineSetup, WidgetStyleSelector, TerminalOptionsMenu, QuitPrompt, StatusLinePreview
 
 ### Utilities (src/utils/)
 - **config.ts**: Settings management
@@ -72,10 +72,8 @@ The project has dual runtime compatibility - works with both Bun and Node.js:
   - Validates config directory paths with proper error handling
 - **colors.ts**: Color definitions and ANSI code mapping
 - **model-context.ts**: Model-to-context-window mapping
-  - Maps model IDs to their context window sizes based on [1m] suffix
-  - Sonnet 4.5 WITH [1m] suffix: 1M tokens (800k usable at 80%) - requires long context beta access
-  - Sonnet 4.5 WITHOUT [1m] suffix: 200k tokens (160k usable at 80%)
-  - Legacy models: 200k tokens (160k usable at 80%)
+  - Window size comes from, in order: the `CCSTATUSLINE_CONTEXT_WINDOW_SIZE` env override, the size Claude Code reports, a size parsed from any model id (e.g. `[1m]`), then a fallback of 200k that `CCSTATUSLINE_CONTEXT_SIZE_FALLBACK` can change
+  - Usable tokens are 80% of the window by default, adjusted by Claude Code's auto-compact settings
 
 ### Widgets (src/widgets/)
 Custom widgets implementing the Widget interface defined in src/types/Widget.ts:
@@ -85,11 +83,12 @@ All widgets must implement:
 - `getDefaultColor()`: Default color for the widget
 - `getDescription()`: Description shown in TUI
 - `getDisplayName()`: Display name shown in TUI
+- `getCategory()`: Category it is grouped under in the widget picker
 - `getEditorDisplay()`: How the widget appears in the editor
 - `render()`: Core rendering logic that produces the widget output
 - `supportsRawValue()`: Whether widget supports raw value mode
 - `supportsColors()`: Whether widget supports color customization
-- Optional: `renderEditor()`, `getCustomKeybinds()`, `getHideableStates()`, `supportsNumberFormat()`, `handleEditorAction()`
+- Optional: `getDetails()`, `renderEditor()`, `getCustomKeybinds()`, `getHideableStates()`, `supportsNumberFormat()`, `getLabelPrefix()`, `handleEditorAction()`, `getNumericValue()`, `preservesRenderedColors()`
 
 **Widget Registry Pattern:**
 - Located in src/utils/widgets.ts
@@ -101,8 +100,8 @@ All widgets must implement:
 **Available Widgets** (highlights — the full, current list lives in `src/utils/widget-manifest.ts`):
 - Model, Version, OutputStyle, VoiceStatus, ClaudeStatus - Claude Code metadata and service-health display
 - GitBranch, GitChanges, GitInsertions, GitDeletions, GitWorktree - Git repository status
-- TokensInput, TokensOutput, TokensCached, TokensCacheRead, TokensCacheCreation, TokensTotal - Token usage metrics
-- ContextLength, ContextPercentage, ContextPercentageUsable - Context window metrics (uses dynamic model-based context windows: 1M for Sonnet 4.5 with [1m] suffix, 200k for all other models)
+- TokensInput, TokensOutput, TokensCached, CacheRead, CacheWrite, TokensTotal - Token usage metrics
+- ContextLength, ContextPercentage, ContextPercentageUsable - Context window metrics (see model-context.ts above for how the window size is chosen)
 - BlockTimer, SessionClock, SessionCost - Time and cost tracking
 - CurrentWorkingDir, TerminalWidth - Environment info
 - CustomText, CustomCommand - User-defined widgets
@@ -137,18 +136,18 @@ Default to using Bun instead of Node.js:
   - Applied automatically during `bun install` via `patchedDependencies` in package.json
   - Patch file: `patches/ink@6.2.0.patch`
 - **Build process**: Two-step build using `bun run build`
-  1. `bun build`: Bundles src/ccstatusline.ts into dist/ccstatusline.js targeting Node.js 14+
+  1. `bun build`: Bundles src/ccstatusline.ts into dist/ccstatusline.js for Node.js 20+, the minimum that ink supports
   2. `postbuild`: Runs scripts/replace-version.ts to replace `__PACKAGE_VERSION__` placeholder with actual version from package.json
 - **ESLint configuration**: Uses flat config format (eslint.config.js) with TypeScript and React plugins
-- **Dependencies**: All runtime dependencies are bundled using `--packages=external` for npm package
+- **Dependencies**: All runtime dependencies are bundled into `dist/`, so the published package needs the whole directory and installs nothing further
 - **Type checking and linting**: Run checks via `bun run lint` and use `bun run lint:fix` only when you intentionally want ESLint auto-fixes. Never use `npx eslint`, `eslint`, `tsx`, `bun tsc`, or any other variation directly
 - **ink in widgets**: Widgets import `Box`, `Text` and `useInput` from `src/widgets/shared/ink.ts`, never from `ink`, because piped mode loads every widget on each refresh. The TUI entry fills that wrapper in, and bunfig.toml preloads it for tests. `src/__tests__/piped-mode-imports.test.ts` fails if piped mode can reach ink.
 - **Lint rules**: Never disable a lint rule via a comment, no matter how benign the lint warning or error may seem
-- **Testing**: Uses Vitest (via Bun); tests live in `__tests__/` directories alongside the code they cover, including:
+- **Testing**: Tests run with `bun test` and import their API from vitest, which Bun provides; `vi.mock` with a factory isn't limited to one file under Bun, so spy on module namespaces instead. Tests live in `__tests__/` directories alongside the code they cover, including:
   - Model context detection and token calculation (src/utils/__tests__/model-context.test.ts)
   - Context percentage calculations (src/utils/__tests__/context-percentage.test.ts)
   - JSONL transcript parsing (src/utils/__tests__/jsonl.test.ts)
   - Widget rendering (src/widgets/__tests__/*.test.ts)
   - Run tests with `bun test` or `bun test --watch` for watch mode
-  - Test configuration: vitest.config.ts
+  - Test preload: bunfig.toml
   - Manual testing also available via piped input and TUI interaction

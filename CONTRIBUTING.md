@@ -6,7 +6,7 @@ from [README.md](README.md), [AGENTS.md](AGENTS.md), and the
 
 ## Set up your checkout
 
-You need Git and [Bun](https://bun.sh) v1.0+. Node.js 14+ is optional for running
+You need Git and [Bun](https://bun.sh) v1.0+. Node.js 20+ is optional for running
 the built distribution.
 
 1. Fork the repository and clone your fork.
@@ -47,7 +47,7 @@ cannot read or write your live ccstatusline usage cache.
 ## Preserve compatibility and settings behavior
 
 - Keep both Bun and Node.js runtimes working. The built `dist/` files must remain
-  compatible with Node.js 14+. The build uses code splitting, so the distribution
+  compatible with Node.js 20+, the minimum that ink supports. The build uses code splitting, so the distribution
   needs the complete `dist/` directory.
 - Keep React and React DOM pinned to exact versions. Update `package.json` and
   `bun.lock` together when refreshing dependencies.
