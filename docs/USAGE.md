@@ -6,6 +6,12 @@ If you want the main project overview, return to [README.md](../README.md).
 
 Once configured, `ccstatusline` automatically formats your Claude Code status line. The status line appears at the bottom of your terminal during Claude Code sessions.
 
+## TUI Navigation
+
+Everywhere in the TUI, `j`/`k` move up and down in lists, menus and move modes, and `h`/`l` cycle wherever left and right do, such as colors, separators and number formats. Text entry, search and the widget picker treat these letters as typed input, and widgets that have their own `h` or `l` keybinds keep them in the line editor.
+
+Press `q` on the main menu to quit. With unsaved changes it asks whether to save, discard or keep editing; otherwise it exits straight away. `q` does nothing on other screens.
+
 ## Runtime Modes
 
 - **Interactive mode (TUI)**: Launches when there is no stdin input
@@ -86,6 +92,7 @@ The exact live compaction threshold is not included in the status payload. This 
 
 - **Current Working Dir** / **Terminal Width** / **Memory Usage** - Show the current working directory, detected terminal width, and system memory usage. Current Working Dir can prepend an optional custom glyph, including when raw-value mode replaces the `cwd:` label. When combining home abbreviation with a segment limit, `~` is preserved without counting toward that limit. Press `l` in its editor to cycle clickable links (`off` → file manager → VS Code → Cursor). The displayed path still honors home abbreviation, segment limits, and fish-style shortening, while the link always targets the original absolute directory. File-manager links use `file://` URLs on POSIX and Windows, including UNC shares; local terminals need OSC 8 hyperlink support.
 - **Transcript Path** - Show the path to the current session's transcript file.
+- **Remote Control Status** - Show whether Claude Code remote control is attached to the current session.
 - **Custom Text** / **Custom Symbol** / **Custom Command** / **Link** - Add user-defined text, a single symbol or emoji, custom command output, or a clickable OSC 8 hyperlink.
 - **Separator** / **Flex Separator** - Add a manual divider or a width-filling flexible spacer. Manual separators stay saved but are hidden in Powerline mode, reappearing when it is disabled; flex separators still work there as layout spacers.
 
@@ -108,6 +115,10 @@ The override is checked before automatic width detection, so it also works in wr
 Claude Code 2.1.153 and later set `COLUMNS` to the current terminal width when running the status line. ccstatusline reads it after `CCSTATUSLINE_WIDTH` and before any probing, so on current Claude Code versions no width-detection subprocesses run. Invalid values fall back to detection the same way.
 
 On Linux, width detection first uses `/proc` and the terminal device directly, avoiding subprocesses when that probe succeeds. Portable `ps`/`stty` fallbacks run without shell wrappers. A probe result is reused throughout one render. If no width is found, that result can also be cached for the same session across renders (default: 5 seconds); a detected width is always re-probed on the next render so resizes take effect immediately. Adjust **Terminal Width Cache TTL** under **Configure Status Line**, or set `terminalWidthCacheTtlSeconds` to `0-300` in `settings.json`; `0` disables the cache across renders.
+
+## Powerline Separators and Caps
+
+Powerline Setup offers more than 30 separator presets, with matching start and end caps: triangles, rounds, thin rounds, blocks, slants, flames and waveforms. Left-facing characters invert their background automatically. Press `x` in the separator editor to enter a character by its hex code, and in Colors to enter a hex color (Truecolor only).
 
 ## Powerline Auto-Alignment
 
@@ -145,7 +156,7 @@ Configure global formatting preferences that apply to all widgets:
   - Press **(g)** to choose a gradient
   - Press **(x)** to clear override
 - **Override Background Color** - Force all widgets to use the same background color
-  - Press **(b)** to cycle through colors
+  - Press **(b)** to cycle through colors. Both overrides cycle disabled, **none**, then each color; **none** forces no color, leaving a transparent background or the terminal's default foreground.
   - Press **(c)** to clear override
 
 </details>
@@ -160,12 +171,12 @@ Widget styles are preset visual themes that control separators, padding, and ren
 
 | Style | Description |
 |-------|-------------|
+| **Minimal** | No separators or padding, compact display |
+| **Pure** | Bold foreground text only, no backgrounds or separators |
+| **Slashed** | Forward slash `/` separators between widgets |
 | **Classic** | Default style with configurable separators (existing behavior) |
 | **Bubble** | Rounded bubble segments with colored backgrounds (requires Powerline fonts) |
-| **Slashed** | Forward slash `/` separators between widgets |
-| **Minimal** | No separators or padding, compact display |
 | **Rainbow** | Powerline arrows with cycling background colors (requires Powerline fonts) |
-| **Pure** | Bold foreground text only, no backgrounds or separators |
 
 > When a non-classic widget style is active, it controls the separator, padding, and powerline configuration. Individual widget colors and bold settings still apply on top of the style. Powerline color themes can still be changed for bubble and rainbow styles.
 
@@ -195,6 +206,8 @@ Gradients apply at **two scopes**:
 Gradients self-degrade where they can't render: at Basic or No Color levels, gradient settings are preserved but render as plain text. In Powerline mode, global foreground gradients color widget text while separators and caps keep Powerline's normal foreground/background contrast rules; per-widget gradients collapse to their first stop when using 256-color or truecolor output.
 
 ## Claude Code Status Line Settings
+
+If `ccstatusline` is already on your `PATH`, for example a local build, choose **Use existing local install** in the install menu. It writes the bare `ccstatusline` command to Claude Code's settings and skips the package manager. The option is disabled when the command isn't found.
 
 When ccstatusline is installed in Claude Code, the main menu includes **Configure Status Line**. Claude Code versions >=2.1.97 support `statusLine.refreshInterval`; ccstatusline can set it to `1-60` seconds, defaults fresh supported installs to `10` seconds, and removes the setting when the input is left empty. Reinstalling preserves an existing refresh interval even if the Claude Code version check fails.
 
@@ -304,12 +317,12 @@ Select a numeric widget in the line editor and press `.` to cycle its style. In 
 ## Widget Editor Keybinds
 
 Common controls in the line editor:
-- `↑/↓` select widget
+- `↑/↓` or `j/k` select widget
 - `←/→` open the type picker for the selected widget
 - navigation wraps at list boundaries, including move/reorder mode
 - `a` add widget via the picker
 - `i` insert widget via the picker
-- `k` clone the selected widget
+- `y` clone the selected widget
 - `Enter` enter/exit move mode
 - `d` delete selected widget
 - `c` clear the current line
@@ -351,7 +364,7 @@ Widget-specific shortcuts:
 - **Block Timer**: `p` cycle time/full bar/short bar, `s` toggle compact time, `v` invert fill in progress mode
 - **Block Reset Timer**: `p` cycle time/full bar/short bar, `s` toggle compact time/date, `t` toggle exact reset date/time, `f` toggle 12/24-hour display in date mode, `z` edit timezone in date mode, `l` edit locale in date mode, `v` invert fill in progress mode
 - **Weekly Reset Timer**: `p` cycle time/full bar/short bar, `s` toggle compact time/date, `t` toggle exact reset date/time, `o` toggle hours-only in time mode, `f` toggle 12/24-hour display in date mode, `z` edit timezone in date mode, `l` edit locale in date mode, `v` invert fill in progress mode
-- **Context Bar**: `p` cycle medium/full/short/short-only progress bar
+- **Context Bar**: `p` cycle medium/full/short/short-only progress bar; `l` cycle labels between full, percent, tokens and none, independently of the bar
 - **Compaction Counter**: `v` cycle value (count/auto/manual/unknown/reclaimed), `f` cycle format, `n` toggle Nerd Font icon in icon mode, `s` toggle trigger split (auto/manual/unknown), `t` toggle tokens reclaimed
 - **Cache widgets** (Cache Hit Rate, Cache Read, Cache Write): `t` toggle turn/session scope
 - **Cache Timer**: `t` cycle the fallback 5-minute/1-hour TTL (reported `5m`/`1h` takes precedence), `s` toggle compact time, `g` customize the working/fresh/draining/urgent/cold glyphs; Working is used only in the transcript fallback; Backspace in the glyph editor renders that state without one

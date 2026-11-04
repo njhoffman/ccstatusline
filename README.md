@@ -137,6 +137,20 @@ For pinned installs, launch the TUI with `npx -y ccstatusline@latest` or `bunx -
 
 ## 🆕 Recent Updates
 
+### This fork: v2.3.0 - v2.8.2
+
+This fork adds the following on top of upstream, which is merged through v2.2.33. Upstream's own updates are below, and [CHANGELOG.md](CHANGELOG.md) has the details for each version.
+
+- **🎭 Widget styles** - Six presets control separators, padding and rendering mode: minimal, pure, slashed, classic, bubble and rainbow.
+- **🔷 Separator and cap presets** - More than 30 Powerline separators with matching caps.
+- **🌈 Tri-state color overrides** - Global overrides cycle disabled, none and colors, where none forces no color.
+- **📊 Context Bar label modes** - Show full, percent, token or no labels, independently of the bar.
+- **⌨️ Vim keys** - `j`/`k` and `h`/`l` navigate the TUI, with clone moving to `y` and hex entry to `x`.
+- **🚪 Quit with `q`** - Quit from the main menu, with a prompt if anything is unsaved.
+- **📦 Use existing local install** - Point Claude Code at a `ccstatusline` already on your `PATH`.
+- **💬 Longer widget explanations** - The widget list and picker explain what each usage, token, cache and timer widget measures.
+- **⚡ Faster refreshes** - Rendering the status line no longer loads the TUI's ink library.
+
 ### v2.2.32 - v2.2.33 - Usage forecasts, live previews, and accurate metrics
 
 Includes all 56 PRs merged since the v2.2.32 tag.
@@ -432,6 +446,7 @@ Across the updates since the September 3 release, 64 PRs have been incorporated,
 - **🎨 Fully Customizable** - Choose what to display and customize colors for each element
 - **⚡ Powerline Support** - Beautiful Powerline-style rendering with arrow separators, caps, and custom fonts
 - **📐 Multi-line Support** - Configure multiple independent status lines
+- **🎭 Widget Styles** - Switch the whole line between six preset visual themes
 - **🖥️ Interactive TUI** - Built-in configuration interface using React/Ink
 - **🔎 Fast Widget Picker** - Add/change widgets by category with search and ranked matching
 - **⚙️ Global Options** - Apply consistent formatting across all widgets (padding, separators, bold, minimalist mode, and color overrides)
