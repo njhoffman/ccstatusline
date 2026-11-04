@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.2] - 2026-11-04
+
+### Changed
+
+- README and USAGE cover the fork's work through 2.8.2: widget style order, separator presets, tri-state overrides, Context Bar labels, vim keys, quit with q and the local install option. USAGE had the old clone key, `k`; it's `y`.
+
 ## [2.8.1] - 2026-11-04
 
 ### Changed
