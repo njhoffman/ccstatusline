@@ -1,4 +1,3 @@
-import { Text } from 'ink';
 import React, { useMemo } from 'react';
 
 import type { WidgetEditorProps } from '../../types/Widget';
@@ -8,6 +7,7 @@ import {
     getTimezoneOptions
 } from '../../utils/timezones';
 
+import { Text } from './ink';
 import { SearchableOptionEditor } from './searchable-option-editor';
 import {
     getUsageTimezone,

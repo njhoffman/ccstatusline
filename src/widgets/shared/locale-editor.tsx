@@ -1,4 +1,3 @@
-import { Text } from 'ink';
 import React, { useMemo } from 'react';
 
 import type { WidgetEditorProps } from '../../types/Widget';
@@ -10,6 +9,7 @@ import {
     getLocaleOptions
 } from '../../utils/locales';
 
+import { Text } from './ink';
 import { SearchableOptionEditor } from './searchable-option-editor';
 import {
     getUsageLocale,

@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React, { useState } from 'react';
 
 import type { RenderContext } from '../types/RenderContext';
@@ -19,6 +14,11 @@ import { shouldInsertInput } from '../utils/input-guards';
 import { isSafeHyperlinkUrl } from '../utils/terminal-sanitize';
 
 import { BlinkingCursor } from './shared/BlinkingCursor';
+import {
+    Box,
+    Text,
+    useInput
+} from './shared/ink';
 
 function isValidHttpUrl(url: string): boolean {
     try {

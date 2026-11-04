@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import * as os from 'node:os';
 import React, { useState } from 'react';
 
@@ -25,6 +20,11 @@ import {
 import { shouldInsertInput } from '../utils/input-guards';
 
 import { BlinkingCursor } from './shared/BlinkingCursor';
+import {
+    Box,
+    Text,
+    useInput
+} from './shared/ink';
 import { formatRawOrLabeledValue } from './shared/raw-or-labeled';
 import {
     SYMBOL_OVERRIDE_ACTION,

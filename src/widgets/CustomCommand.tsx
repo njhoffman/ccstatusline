@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React, { useState } from 'react';
 
 import type { RenderContext } from '../types/RenderContext';
@@ -22,6 +17,11 @@ import { runCustomCommand } from '../utils/custom-command';
 import { shouldInsertInput } from '../utils/input-guards';
 
 import { BlinkingCursor } from './shared/BlinkingCursor';
+import {
+    Box,
+    Text,
+    useInput
+} from './shared/ink';
 import { applyMaxWidth } from './shared/max-width';
 
 export class CustomCommandWidget implements Widget {

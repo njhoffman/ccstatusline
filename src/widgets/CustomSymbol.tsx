@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React, { useState } from 'react';
 
 import type { RenderContext } from '../types/RenderContext';
@@ -19,6 +14,11 @@ import { shouldInsertInput } from '../utils/input-guards';
 
 import { BlinkingCursor } from './shared/BlinkingCursor';
 import { MERGE_TARGET_HIDDEN_HIDEABLE_STATE } from './shared/hideable';
+import {
+    Box,
+    Text,
+    useInput
+} from './shared/ink';
 import { getGraphemes } from './shared/text-cursor';
 
 export class CustomSymbolWidget implements Widget {

@@ -1,10 +1,11 @@
-import { useInput } from 'ink';
 import {
     useCallback,
     useEffect,
     useRef,
     useState
 } from 'react';
+
+import { useInput } from './ink';
 
 /** Blink only while an editor cursor is mounted; input starts a fresh visible phase. */
 export function useCursorBlink(): boolean {

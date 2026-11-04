@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React, { useState } from 'react';
 
 import type { RenderContext } from '../../types/RenderContext';
@@ -35,6 +30,11 @@ import {
 import { BlinkingCursor } from './BlinkingCursor';
 import { makeModifierText } from './editor-display';
 import { isHidden } from './hideable';
+import {
+    Box,
+    Text,
+    useInput
+} from './ink';
 import { formatRawOrLabeledValue } from './raw-or-labeled';
 
 export type SpeedWidgetKind = 'input' | 'output' | 'total';

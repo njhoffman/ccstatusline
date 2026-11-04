@@ -142,6 +142,7 @@ Default to using Bun instead of Node.js:
 - **ESLint configuration**: Uses flat config format (eslint.config.js) with TypeScript and React plugins
 - **Dependencies**: All runtime dependencies are bundled using `--packages=external` for npm package
 - **Type checking and linting**: Run checks via `bun run lint` and use `bun run lint:fix` only when you intentionally want ESLint auto-fixes. Never use `npx eslint`, `eslint`, `tsx`, `bun tsc`, or any other variation directly
+- **ink in widgets**: Widgets import `Box`, `Text` and `useInput` from `src/widgets/shared/ink.ts`, never from `ink`, because piped mode loads every widget on each refresh. The TUI entry fills that wrapper in, and `bunfig.toml` preloads it for tests. `src/__tests__/piped-mode-imports.test.ts` fails if piped mode can reach ink.
 - **Lint rules**: Never disable a lint rule via a comment, no matter how benign the lint warning or error may seem
 - **Testing**: Uses Vitest (via Bun); tests live in `__tests__/` directories alongside the code they cover, including:
   - Model context detection and token calculation (src/utils/__tests__/model-context.test.ts)

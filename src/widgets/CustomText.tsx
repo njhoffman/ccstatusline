@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React from 'react';
 
 import type { RenderContext } from '../types/RenderContext';
@@ -17,6 +12,11 @@ import type {
 } from '../types/Widget';
 
 import { MERGE_TARGET_HIDDEN_HIDEABLE_STATE } from './shared/hideable';
+import {
+    Box,
+    Text,
+    useInput
+} from './shared/ink';
 import { useTextCursor } from './shared/text-cursor';
 
 export class CustomTextWidget implements Widget {

@@ -1,7 +1,7 @@
-import { Text } from 'ink';
 import React from 'react';
 
 import { useCursorBlink } from './cursor-blink';
+import { Text } from './ink';
 
 interface BlinkingCursorProps {
     children: string;

@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React, { useState } from 'react';
 
 import type {
@@ -14,6 +9,11 @@ import { truncateStyledText } from '../../utils/ansi';
 import { shouldInsertInput } from '../../utils/input-guards';
 
 import { BlinkingCursor } from './BlinkingCursor';
+import {
+    Box,
+    Text,
+    useInput
+} from './ink';
 
 export const MAX_WIDTH_ACTION = 'edit-max-width';
 

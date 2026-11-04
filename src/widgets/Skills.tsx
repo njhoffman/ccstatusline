@@ -1,8 +1,3 @@
-import {
-    Box,
-    Text,
-    useInput
-} from 'ink';
 import React, { useState } from 'react';
 
 import type { RenderContext } from '../types/RenderContext';
@@ -21,6 +16,11 @@ import { shouldInsertInput } from '../utils/input-guards';
 import { BlinkingCursor } from './shared/BlinkingCursor';
 import { makeModifierText } from './shared/editor-display';
 import { isHidden } from './shared/hideable';
+import {
+    Box,
+    Text,
+    useInput
+} from './shared/ink';
 import { removeMetadataKeys } from './shared/metadata';
 
 type Mode = 'current' | 'count' | 'list';
