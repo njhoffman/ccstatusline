@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.1] - 2026-11-04
+
+### Changed
+
+- Rendering the status line no longer loads the TUI's ink library, which makes each refresh about 100ms faster.
+
 ## [2.8.0] - 2026-11-04
 
 ### Added
