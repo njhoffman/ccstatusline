@@ -18,6 +18,14 @@ describe('ManageInstallationMenu helpers', () => {
         expect(buildManageInstallationItems()[0]?.label).toBe('🔄 Check for Updates');
     });
 
+    it('offers no update check for a self-managed install, which it would replace with the npm package', () => {
+        const selfManaged = { method: 'self-managed', packageManager: 'unknown' } as const;
+        const pinned = { method: 'pinned', packageManager: 'npm' } as const;
+
+        expect(buildManageInstallationItems(selfManaged).map(item => item.value)).toEqual(['uninstall']);
+        expect(buildManageInstallationItems(pinned).map(item => item.value)).toEqual(['checkUpdates', 'uninstall']);
+    });
+
     it('offers npm, bun, and combined package removal when both are installed', () => {
         const items = buildUninstallItems([
             {

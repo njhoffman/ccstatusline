@@ -16,22 +16,21 @@ Check if ccstatusline is already installed:
 cat ~/.claude/settings.json 2>/dev/null | grep -o '"command":[^,}]*' | head -1
 ```
 
-Also check if npx/bunx is available:
+Also check that the local build of this fork is on `PATH`:
 ```bash
-which npx 2>/dev/null && echo "npx available" || echo "npx not found"
-which bunx 2>/dev/null && echo "bunx available" || echo "bunx not found"
+which ccstatusline 2>/dev/null && ccstatusline --version || echo "ccstatusline not found"
 ```
+
+If it isn't found, stop and tell the user to run `bun run build` in their checkout and link `dist/ccstatusline.js` into a directory on their `PATH`. Don't install from npm: the published `ccstatusline` package is upstream's and has no widget styles.
 
 Tell the user:
 - If ccstatusline is already installed, offer to reconfigure it
 - If another statusline is installed, warn that it will be replaced
 - If nothing is installed, proceed with fresh setup
 
-## Step 2: Choose Installation Method
+## Step 2: Installation Command
 
-Ask the user which package runner to use:
-1. **npx** (Node.js, most compatible) - `npx -y ccstatusline@latest`
-2. **bunx** (Bun, faster) - `bunx -y ccstatusline@latest`
+The status line command is the bare `ccstatusline`. There is no package runner to choose.
 
 ## Step 3: Choose Widget Style
 
@@ -90,7 +89,7 @@ Ask if they want to customize. If yes, suggest popular combinations:
 
 If they want fine-grained control, suggest running the interactive TUI after installation:
 ```bash
-npx ccstatusline
+ccstatusline
 ```
 
 ## Step 6: Install
@@ -159,7 +158,7 @@ Use a tool to merge the statusLine configuration:
 {
   "statusLine": {
     "type": "command",
-    "command": "<npx -y ccstatusline@latest OR bunx -y ccstatusline@latest>",
+    "command": "ccstatusline",
     "padding": 0
   }
 }
@@ -171,7 +170,7 @@ Write the merged settings back to `~/.claude/settings.json`.
 
 Test the installation by running:
 ```bash
-echo '{"model":{"id":"claude-sonnet-4-5-20250929"},"transcript_path":"test.jsonl"}' | <chosen-command>
+echo '{"model":{"id":"claude-sonnet-4-5-20250929"},"transcript_path":"test.jsonl"}' | ccstatusline
 ```
 
 If it produces output with the model name, the installation is working.
@@ -180,7 +179,7 @@ If it produces output with the model name, the installation is working.
 
 Tell the user:
 - ccstatusline is now installed and will show on your next Claude Code message
-- To reconfigure at any time, run the interactive TUI: `npx ccstatusline` (or `bunx ccstatusline`)
+- To reconfigure at any time, run the interactive TUI: `ccstatusline`
 - To change styles/themes quickly, run `/ccstatusline` again
 - Documentation: https://github.com/sirmalloc/ccstatusline
 

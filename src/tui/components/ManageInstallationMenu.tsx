@@ -73,8 +73,11 @@ function getActiveCommandLabel(activeCommand: ActiveGlobalCommandResolution | nu
     return `Active PATH match: ${activeCommand.packageManager} global${version} (${activeCommand.resolvedPath})`;
 }
 
-export function buildManageInstallationItems(): ListEntry<ManageInstallationAction>[] {
-    return [
+// The update check asks npm about the published package, so for a self-managed
+// install, such as a local build of this fork, it would offer to replace that
+// build with upstream's
+export function buildManageInstallationItems(installation?: ResolvedInstallationMetadata): ListEntry<ManageInstallationAction>[] {
+    const items: ListEntry<ManageInstallationAction>[] = [
         {
             label: '🔄 Check for Updates',
             value: 'checkUpdates',
@@ -86,6 +89,10 @@ export function buildManageInstallationItems(): ListEntry<ManageInstallationActi
             description: 'Remove ccstatusline from Claude Code settings, optionally removing global npm/bun packages'
         }
     ];
+
+    return installation?.method === 'self-managed'
+        ? items.filter(item => item.value !== 'checkUpdates')
+        : items;
 }
 
 function formatPackageManagers(packageManagers: GlobalPackageManager[]): string {
@@ -164,7 +171,7 @@ export const ManageInstallationMenu: React.FC<ManageInstallationMenuProps> = ({
             )}
             <List
                 marginTop={1}
-                items={buildManageInstallationItems()}
+                items={buildManageInstallationItems(installation)}
                 onSelect={(value) => {
                     if (value === 'back') {
                         onBack();

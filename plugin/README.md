@@ -12,7 +12,7 @@ claude plugin add sirmalloc/ccstatusline
 
 After installing the plugin, run the `/ccstatusline` command in Claude Code to launch the interactive setup wizard. It will guide you through:
 
-1. Choosing an installation method (npx or bunx)
+1. Checking that the local `ccstatusline` build is on your `PATH`
 2. Selecting a widget style (classic, bubble, slashed, minimal, rainbow, pure)
 3. Picking a color theme (for bubble/rainbow styles)
 4. Configuring widgets
@@ -21,4 +21,4 @@ After installing the plugin, run the `/ccstatusline` command in Claude Code to l
 ## Reconfiguration
 
 - Run `/ccstatusline` again to reconfigure
-- Run `npx ccstatusline` (or `bunx ccstatusline`) for the full interactive TUI
+- Run `ccstatusline` for the full interactive TUI
