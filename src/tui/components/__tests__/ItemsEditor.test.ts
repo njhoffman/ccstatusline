@@ -64,9 +64,16 @@ function createMockStdout(): CapturedWriteStream {
     });
 }
 
-function flushInk() {
-    return new Promise((resolve) => {
-        setTimeout(resolve, 25);
+// Sends a key and waits for a frame drawn after it to show the expected text
+async function pressKey(stdin: NodeJS.ReadStream, stdout: CapturedWriteStream, key: string, expected: string) {
+    stdout.clearOutput();
+    (stdin as unknown as PassThrough).write(key);
+    await waitForOutput(stdout, expected);
+}
+
+async function waitForOutput(stdout: CapturedWriteStream, expected: string) {
+    await waitFor(() => {
+        expect(stripAnsi(stdout.getOutput())).toContain(expected);
     });
 }
 
@@ -138,24 +145,12 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Tokens Input');
+            await waitForOutput(stdout, '1. Tokens Input');
             expect(stripAnsi(stdout.getOutput())).not.toContain('(compact)');
 
-            stdout.clearOutput();
-            stdin.write('.');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Tokens Input (compact)');
-
-            stdout.clearOutput();
-            stdin.write('.');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Tokens Input (whole)');
-
-            stdout.clearOutput();
-            stdin.write('.');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Tokens Input');
+            await pressKey(stdin, stdout, '.', '1. Tokens Input (compact)');
+            await pressKey(stdin, stdout, '.', '1. Tokens Input (whole)');
+            await pressKey(stdin, stdout, '.', '1. Tokens Input');
             expect(stripAnsi(stdout.getOutput())).not.toContain('(compact)');
             expect(stripAnsi(stdout.getOutput())).not.toContain('(whole)');
         } finally {
@@ -196,8 +191,7 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Cache Read (session) (compact)');
+            await waitForOutput(stdout, '1. Cache Read (session) (compact)');
         } finally {
             instance.unmount();
             instance.cleanup();
@@ -224,29 +218,17 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('(e)dit label…');
+            await waitForOutput(stdout, '(e)dit label…');
+            await pressKey(stdin, stdout, 'e', '(default: "Model: ")');
 
-            stdout.clearOutput();
-            stdin.write('e');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('(default: "Model: ")');
-
-            // Trim "Model: " down to "M", one backspace per keypress
-            for (const key of Array.from('odel: ', () => '\x7f')) {
-                stdin.write(key);
-                await flushInk();
+            // Trim "Model: " down to "M", one backspace per keypress. The cursor
+            // draws as one more cell after the text.
+            for (let length = 'Model: '.length - 1; length >= 1; length--) {
+                await pressKey(stdin, stdout, '\x7f', `"${'Model: '.slice(0, length)} " (default`);
             }
-            stdin.write(' ');
-            await flushInk();
-            stdout.clearOutput();
-            stdin.write('\r');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Model (label: "M ")');
-
-            stdout.clearOutput();
-            stdin.write('r');
-            await flushInk();
+            await pressKey(stdin, stdout, ' ', '"M  " (default');
+            await pressKey(stdin, stdout, '\r', '1. Model (label: "M ")');
+            await pressKey(stdin, stdout, 'r', '(raw value)');
             const rawOutput = stripAnsi(stdout.getOutput());
             expect(rawOutput).toContain('(raw value)');
             expect(rawOutput).not.toContain('(e)dit label…');
@@ -344,18 +326,13 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Model (label: "M ")');
+            await waitForOutput(stdout, '1. Model (label: "M ")');
 
-            stdin.write('\x1b[C');
-            await flushInk();
-            for (const char of query) {
-                stdin.write(char);
-                await flushInk();
+            await pressKey(stdin, stdout, '\x1b[C', 'Search');
+            for (let length = 1; length <= query.length; length++) {
+                await pressKey(stdin, stdout, query.charAt(length - 1), query.slice(0, length));
             }
-            stdout.clearOutput();
-            stdin.write('\r');
-            await flushInk();
+            await pressKey(stdin, stdout, '\r', `1. ${name}`);
             const output = stripAnsi(stdout.getOutput());
             expect(output).toContain(`1. ${name}`);
             if (keepsLabel) {
@@ -390,19 +367,15 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            stdin.write('e');
-            await flushInk();
+            await waitForOutput(stdout, '1. Model');
+            await pressKey(stdin, stdout, 'e', '(default: "Model: ")');
 
             // One macrotask apart: separate keypresses, but no re-render between them
             stdin.write('\x7f');
             await new Promise(resolve => setImmediate(resolve));
             stdin.write('\x7f');
-            await flushInk();
-            stdout.clearOutput();
-            stdin.write('\r');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('1. Model (label: "Model")');
+            await waitForOutput(stdout, '"Model " (default');
+            await pressKey(stdin, stdout, '\r', '1. Model (label: "Model")');
         } finally {
             instance.unmount();
             instance.cleanup();
@@ -470,11 +443,8 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            stdout.clearOutput();
-            stdin.write('e');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('"\u{1F469}\u200D\u{1F4BB}  " (default: "Model: ")');
+            await waitForOutput(stdout, '1. Model');
+            await pressKey(stdin, stdout, 'e', '"\u{1F469}\u200D\u{1F4BB}  " (default: "Model: ")');
         } finally {
             instance.unmount();
             instance.cleanup();
@@ -502,19 +472,12 @@ describe('ItemsEditor', () => {
         );
 
         try {
-            await flushInk();
-            stdin.write('e');
-            await flushInk();
-            stdout.clearOutput();
-            stdin.write('\r');
-            await flushInk();
-            expect(stripAnsi(stdout.getOutput())).toContain('(label: "Block ")');
+            await waitForOutput(stdout, '1. Block');
+            await pressKey(stdin, stdout, 'e', '(default:');
+            await pressKey(stdin, stdout, '\r', '(label: "Block ")');
 
-            stdin.write('e');
-            await flushInk();
-            stdout.clearOutput();
-            stdin.write('\t');
-            await flushInk();
+            await pressKey(stdin, stdout, 'e', '(default:');
+            await pressKey(stdin, stdout, '\t', '1. Block');
             expect(stripAnsi(stdout.getOutput())).not.toContain('(label:');
         } finally {
             instance.unmount();

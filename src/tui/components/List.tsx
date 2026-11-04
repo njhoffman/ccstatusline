@@ -46,6 +46,11 @@ export function List<V = string | number>({
 }: ListProps<V>) {
     const [selectedIndex, setSelectedIndex] = useState(initialSelection);
     const latestOnSelectionChangeRef = useRef(onSelectionChange);
+    // Positions reported to the parent that it hasn't passed back yet. Parents
+    // echo them through initialSelection a render later, by which time another
+    // keypress may have moved on, so an echo must not pull the cursor back.
+    const pendingEchoesRef = useRef<number[]>([]);
+    const lastInitialSelectionRef = useRef(initialSelection);
 
     const _items = useMemo(() => {
         if (showBackButton) {
@@ -65,34 +70,55 @@ export function List<V = string | number>({
 
     useEffect(() => {
         const maxIndex = Math.max(selectableItems.length - 1, 0);
+        const pendingEchoes = pendingEchoesRef.current;
+        const initialSelectionChanged = initialSelection !== lastInitialSelectionRef.current;
+        lastInitialSelectionRef.current = initialSelection;
+
+        const echoIndex = initialSelectionChanged ? pendingEchoes.indexOf(initialSelection) : -1;
+        if (echoIndex !== -1) {
+            pendingEchoes.splice(0, echoIndex + 1);
+        }
+
+        if (echoIndex !== -1 || (!initialSelectionChanged && pendingEchoes.length > 0)) {
+            setSelectedIndex(current => Math.min(current, maxIndex));
+            return;
+        }
+
+        pendingEchoes.length = 0;
         setSelectedIndex(Math.min(initialSelection, maxIndex));
     }, [initialSelection, selectableItems.length]);
 
     useEffect(() => {
         if (selectedValue !== undefined) {
-            latestOnSelectionChangeRef.current?.(selectedValue, selectedIndex);
+            const onChange = latestOnSelectionChangeRef.current;
+            if (onChange && selectedIndex !== (pendingEchoesRef.current.at(-1) ?? lastInitialSelectionRef.current)) {
+                pendingEchoesRef.current.push(selectedIndex);
+            }
+            onChange?.(selectedValue, selectedIndex);
         }
     }, [selectedIndex, selectedValue]);
 
     useInput((input, rawKey) => {
         const key = withVimArrows(input, rawKey, 'vertical');
         if (key.upArrow) {
-            const prev = selectedIndex - 1;
-            const prevIndex = prev < 0
-                ? (wrapNavigation ? selectableItems.length - 1 : 0)
-                : prev;
-
-            setSelectedIndex(prevIndex);
+            setSelectedIndex((current) => {
+                const prev = current - 1;
+                if (prev >= 0) {
+                    return prev;
+                }
+                return wrapNavigation ? selectableItems.length - 1 : 0;
+            });
             return;
         }
 
         if (key.downArrow) {
-            const next = selectedIndex + 1;
-            const nextIndex = next > selectableItems.length - 1
-                ? (wrapNavigation ? 0 : selectableItems.length - 1)
-                : next;
-
-            setSelectedIndex(nextIndex);
+            setSelectedIndex((current) => {
+                const next = current + 1;
+                if (next <= selectableItems.length - 1) {
+                    return next;
+                }
+                return wrapNavigation ? 0 : selectableItems.length - 1;
+            });
             return;
         }
 

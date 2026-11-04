@@ -97,12 +97,6 @@ function renderColorMenu(widgets: WidgetItem[]) {
     };
 }
 
-function flushInk() {
-    return new Promise((resolve) => {
-        setTimeout(resolve, 25);
-    });
-}
-
 describe('ColorMenu', () => {
     it('keeps bold and dim indicators on the current-style row', async () => {
         const stdin = createMockStdin();
@@ -147,16 +141,18 @@ describe('ColorMenu', () => {
         );
 
         try {
-            await flushInk();
+            await waitFor(() => {
+                expect(stdout.getOutput()).toContain('Current foreground');
+            });
             stdin.write('\x1B[B');
-            await flushInk();
+            await waitFor(() => {
+                const latestFrame = stdout.getOutput().split('Configure Colors').at(-1) ?? '';
+                const currentStyleLine = latestFrame
+                    .split('\n')
+                    .find(line => line.includes('Current foreground')) ?? '';
 
-            const latestFrame = stdout.getOutput().split('Configure Colors').at(-1) ?? '';
-            const currentStyleLine = latestFrame
-                .split('\n')
-                .find(line => line.includes('Current foreground')) ?? '';
-
-            expect(currentStyleLine).toContain('[BOLD] [DIM ()]');
+                expect(currentStyleLine).toContain('[BOLD] [DIM ()]');
+            });
         } finally {
             instance.unmount();
             instance.cleanup();
