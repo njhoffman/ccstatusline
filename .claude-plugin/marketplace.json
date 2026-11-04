@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Customizable status line formatter for Claude Code CLI",
-    "version": "2.8.6"
+    "version": "2.8.7"
   },
   "plugins": [
     {
       "name": "ccstatusline",
       "source": "./plugin",
       "description": "Configure ccstatusline with widget styles, themes, and custom widgets",
-      "version": "2.8.6",
+      "version": "2.8.7",
       "category": "statusline",
       "tags": ["statusline", "prompt", "customization", "powerline"],
       "keywords": ["statusline", "prompt", "powerline", "widgets", "themes", "nord", "dracula", "catppuccin", "gruvbox"]
