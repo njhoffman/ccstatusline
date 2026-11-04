@@ -117,7 +117,8 @@ export default ts.config([
             '@stylistic/eol-last': ['error', 'always'],
             '@stylistic/jsx-quotes': ['error', 'prefer-single'],
             '@stylistic/multiline-ternary': 'off',
-            'import-x/no-unresolved': ['error'],
+            // bun: modules are runtime built-ins the resolver can't see; tsc still checks them
+            'import-x/no-unresolved': ['error', { ignore: ['^bun:'] }],
             'import-x/no-named-as-default': 'off',
             'import-x/no-named-as-default-member': 'off',
             'import-x/default': 'off'

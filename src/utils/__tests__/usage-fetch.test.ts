@@ -1,3 +1,4 @@
+import { setDefaultTimeout } from 'bun:test';
 import type * as childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
@@ -23,6 +24,10 @@ import {
     startStalledProxy,
     type StalledProxy
 } from './proxy-test-helpers';
+
+// Most tests here spawn a probe subprocess per scenario, several per test, which
+// can pass the 5s default on a busy machine. This applies to this file only.
+setDefaultTimeout(30_000);
 
 const require = createRequire(import.meta.url);
 const { execFileSync: realExecFileSync } = require('node:child_process') as { execFileSync: typeof childProcess.execFileSync };
@@ -693,7 +698,7 @@ describe('fetchUsageData error handling', () => {
         }
     });
 
-    it('preserves root errors within a process and keeps existing proxy and cache behavior', { timeout: 15_000 }, () => {
+    it('preserves root errors within a process and keeps existing proxy and cache behavior', () => {
         const harness = createProbeHarness();
 
         try {

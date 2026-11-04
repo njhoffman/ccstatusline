@@ -2,10 +2,13 @@
 // schedule. A fixed sleep between keys races both on a busy machine, so tests
 // wait for each key's visible effect instead.
 
-// Two setImmediate turns let React run the passive effect that re-attaches the
-// input listener after a redraw, so the next key isn't dropped
+// A frame can be on screen before React has finished with the key behind it: the
+// passive effect that re-attaches the input listener still has to run, and a
+// list's position still has to reach its parent, re-render it and re-attach the
+// parent's listener. Ten setImmediate turns cover that round trip; two weren't
+// enough on a busy machine.
 export async function letReactCatchUp(): Promise<void> {
-    for (let turn = 0; turn < 2; turn++) {
+    for (let turn = 0; turn < 10; turn++) {
         await new Promise((resolve) => {
             setImmediate(resolve);
         });
