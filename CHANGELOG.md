@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.4] - 2026-11-04
+
+### Changed
+
+- The stated minimum is now Node.js 20, the minimum ink supports. The old claim of Node.js 14 was wrong: the build can't parse there.
+
 ## [2.8.3] - 2026-11-04
 
 ### Fixed
