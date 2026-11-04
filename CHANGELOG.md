@@ -6,6 +6,12 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.3] - 2026-11-04
+
+### Fixed
+
+- Tests no longer fail on a busy machine: TUI tests wait long enough for a keypress to reach the parent screen, and the usage tests that spawn subprocesses get a 30s limit.
+
 ## [2.8.2] - 2026-11-04
 
 ### Changed
