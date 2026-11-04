@@ -6,6 +6,30 @@ Versions up to 2.2.32 are upstream releases: see the "Recent Updates" section of
 
 ## [Unreleased]
 
+## [2.8.8] - 2026-11-04
+
+### Fixed
+
+- Saving Claude Code's settings replaces the file in one step, so a crash or a read during the save can't see a truncated file. Symlinks and file permissions are kept.
+
+## [2.8.7] - 2026-11-04
+
+### Fixed
+
+- Manage Installation no longer offers Check for Updates for a self-managed install such as a local build, where it would offer to replace the build with upstream's npm package.
+- The plugin wizard uses the local `ccstatusline` command instead of installing upstream's npm package.
+
+## [2.8.6] - 2026-11-04
+
+### Changed
+
+- The Bun version is pinned to 1.3.11 through `packageManager`, for CI and local work alike.
+- TODO.md is tracked, and `.claude/settings.local.json` is ignored.
+
+### Added
+
+- A test that fails if the four places holding the version disagree.
+
 ## [2.8.5] - 2026-11-04
 
 ### Added
