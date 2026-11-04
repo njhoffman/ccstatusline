@@ -1,5 +1,7 @@
+import chalk from 'chalk';
 import { execFileSync } from 'node:child_process';
 import {
+    afterEach,
     beforeEach,
     describe,
     expect,
@@ -12,6 +14,8 @@ import { DEFAULT_SETTINGS } from '../../types/Settings';
 import type { WidgetItem } from '../../types/Widget';
 import { mockExecutableResolution } from '../../utils/__tests__/executable-path-test-helpers';
 import { expectGitExecOptions } from '../../utils/__tests__/git-test-helpers';
+import { updateColorMap } from '../../utils/colors';
+import * as dotbare from '../../utils/dotbare';
 import { clearGitCache } from '../../utils/git';
 import { GIT_HARDENING_ARGS } from '../../utils/git-hardening';
 import {
@@ -261,6 +265,106 @@ describe('GitRootDirWidget', () => {
                 onCancel: vi.fn(),
                 action: 'edit-max-width'
             })).not.toBeNull();
+        });
+    });
+    describe('in a directory tracked by dotbare', () => {
+        const originalChalkLevel = chalk.level;
+
+        // Set by the real entry point, and needed for color codes
+        beforeEach(() => {
+            chalk.level = 2;
+            updateColorMap();
+        });
+
+        afterEach(() => {
+            chalk.level = originalChalkLevel;
+            updateColorMap();
+        });
+
+        const notInGit = () => {
+            mockExecFileSync.mockImplementation(() => { throw new Error('not a git repository'); });
+        };
+        const renderItem = (item: Partial<WidgetItem> = {}, settings = DEFAULT_SETTINGS) => new GitRootDirWidget().render(
+            { id: 'git-root-dir', type: 'git-root-dir', ...item },
+            { data: { cwd: '/home/me/.config/tmux' } },
+            settings
+        );
+        const plain = (text: string | null) => (text ?? '').replace(/\x1b\[[0-9;]*m/g, '');
+
+        it('shows the project name in its own color instead of no git', () => {
+            notInGit();
+            const lookup = vi.spyOn(dotbare, 'findDotbareRoot').mockReturnValue('/home/me/.config/tmux');
+            try {
+                const output = renderItem();
+
+                expect(plain(output)).toBe('tmux');
+                expect(output).not.toBe('tmux');
+                expect(output?.endsWith('\x1b[39m')).toBe(true);
+            } finally {
+                lookup.mockRestore();
+            }
+        });
+
+        it('takes the color from the item', () => {
+            notInGit();
+            const lookup = vi.spyOn(dotbare, 'findDotbareRoot').mockReturnValue('/home/me/.config/tmux');
+            try {
+                const standard = renderItem();
+                const custom = renderItem({ metadata: { dotbareColor: 'red' } });
+
+                expect(plain(custom)).toBe('tmux');
+                expect(custom).not.toBe(standard);
+            } finally {
+                lookup.mockRestore();
+            }
+        });
+
+        it.each([
+            ['color is off', { ...DEFAULT_SETTINGS, colorLevel: 0 as const }],
+            ['a global foreground override is set', { ...DEFAULT_SETTINGS, overrideForegroundColor: 'red' }]
+        ])('adds no color of its own when %s', (_name, settings) => {
+            notInGit();
+            const lookup = vi.spyOn(dotbare, 'findDotbareRoot').mockReturnValue('/home/me/.config/tmux');
+            try {
+                expect(renderItem({}, settings)).toBe('tmux');
+            } finally {
+                lookup.mockRestore();
+            }
+        });
+
+        it('applies the max width and IDE link', () => {
+            notInGit();
+            const lookup = vi.spyOn(dotbare, 'findDotbareRoot').mockReturnValue('/home/me/.config/long-config-name');
+            try {
+                const output = renderItem({ maxWidth: 7, metadata: { linkToIDE: 'vscode' } }, { ...DEFAULT_SETTINGS, colorLevel: 0 });
+
+                expect(output).toBe(renderOsc8Link(buildIdeFileUrl('/home/me/.config/long-config-name', 'vscode'), 'long...'));
+            } finally {
+                lookup.mockRestore();
+            }
+        });
+
+        it('still shows no git, or hides, when dotbare has nothing', () => {
+            notInGit();
+            const lookup = vi.spyOn(dotbare, 'findDotbareRoot').mockReturnValue(null);
+            try {
+                expect(renderItem()).toBe('no git');
+                expect(renderItem({ metadata: { hide: 'no-git' } })).toBeNull();
+            } finally {
+                lookup.mockRestore();
+            }
+        });
+
+        it('leaves a real git repo alone, without looking for dotbare', () => {
+            mockExecFileSync.mockReturnValueOnce('true\n');
+            mockExecFileSync.mockReturnValueOnce('/some/path/my-repo');
+            const lookup = vi.spyOn(dotbare, 'findDotbareRoot');
+            try {
+                expect(renderItem()).toBe('my-repo');
+                expect(lookup).not.toHaveBeenCalled();
+            } finally {
+                lookup.mockRestore();
+            }
         });
     });
 });

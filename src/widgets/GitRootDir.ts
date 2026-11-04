@@ -1,3 +1,4 @@
+import { getColorLevelString } from '../types/ColorLevel';
 import type { RenderContext } from '../types/RenderContext';
 import type { Settings } from '../types/Settings';
 import type {
@@ -8,8 +9,11 @@ import type {
     WidgetEditorProps,
     WidgetItem
 } from '../types/Widget';
+import { getColorAnsiCode } from '../utils/colors';
+import { findDotbareRoot } from '../utils/dotbare';
 import {
     isInsideGitWorkTree,
+    resolveGitCwd,
     runGit
 } from '../utils/git';
 import type { IdeLinkMode } from '../utils/hyperlink';
@@ -36,6 +40,8 @@ import { isMetadataFlagEnabled } from './shared/metadata';
 const IDE_LINK_KEY = 'linkToIDE';
 const LEGACY_CURSOR_LINK_KEY = 'linkToCursor';
 const TOGGLE_LINK_ACTION = 'toggle-link';
+const DOTBARE_COLOR_KEY = 'dotbareColor';
+const DEFAULT_DOTBARE_COLOR = 'brightYellow';
 const IDE_LINK_LABELS: Record<IdeLinkMode, string> = {
     vscode: 'link-vscode',
     cursor: 'link-cursor'
@@ -43,7 +49,7 @@ const IDE_LINK_LABELS: Record<IdeLinkMode, string> = {
 
 export class GitRootDirWidget implements Widget {
     getDefaultColor(): string { return 'cyan'; }
-    getDescription(): string { return 'Shows the git repository root directory name'; }
+    getDescription(): string { return 'Shows the git repository root directory name, or the project name in a directory tracked by dotbare'; }
     getDisplayName(): string { return 'Git Root Dir'; }
     getCategory(): string { return 'Git'; }
     getEditorDisplay(item: WidgetItem): WidgetEditorDisplay {
@@ -71,7 +77,7 @@ export class GitRootDirWidget implements Widget {
         return null;
     }
 
-    render(item: WidgetItem, context: RenderContext, _settings: Settings): string | null {
+    render(item: WidgetItem, context: RenderContext, settings: Settings): string | null {
         const hideNoGit = isHidden(item, NO_GIT_HIDEABLE_STATE.key);
         const ideLinkMode = this.getIdeLinkMode(item);
 
@@ -82,6 +88,10 @@ export class GitRootDirWidget implements Widget {
         }
 
         if (!isInsideGitWorkTree(context)) {
+            const dotbareRoot = findDotbareRoot(resolveGitCwd(context));
+            if (dotbareRoot) {
+                return this.renderDotbareRoot(dotbareRoot, item, settings, ideLinkMode);
+            }
             return hideNoGit ? null : 'no git';
         }
 
@@ -97,6 +107,19 @@ export class GitRootDirWidget implements Widget {
         }
 
         return name;
+    }
+
+    // Tinted here because the renderer's color is the item's for both cases, so
+    // this one sits inside it. A global foreground override still wins.
+    private renderDotbareRoot(rootDir: string, item: WidgetItem, settings: Settings, ideLinkMode: IdeLinkMode | null): string {
+        const name = applyMaxWidth(this.getRootDirName(rootDir), item.maxWidth);
+        const color = item.metadata?.[DOTBARE_COLOR_KEY] ?? DEFAULT_DOTBARE_COLOR;
+        const code = settings.colorLevel === 0 || settings.overrideForegroundColor
+            ? ''
+            : getColorAnsiCode(color, getColorLevelString(settings.colorLevel), false);
+        const text = code ? `${code}${name}\x1b[39m` : name;
+
+        return ideLinkMode ? renderOsc8Link(buildIdeFileUrl(rootDir, ideLinkMode), text) : text;
     }
 
     private getGitRootDir(context: RenderContext): string | null {
